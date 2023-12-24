@@ -4,13 +4,6 @@ import java.util.Objects;
 
 public class Task {
 
-    /*
-    я выбрала protected для большинства переменных и методов, чтобы
-    у наследников и taskmanager был к ним доступ, но не в main из другого пакета, поэтому
-    вся работа по созданию, изменению и удалению задач ведется только через taskmanager.
-    Это оберегает от самовольного присвоения эпику статуса, например. И прочее.
-     */
-
     protected String name;
     protected String description;
     protected int id;
@@ -42,15 +35,15 @@ public class Task {
         this.id = id;
     }
 
-    protected void setStatus(Status status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
-    protected void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    protected void setDescription(String description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 

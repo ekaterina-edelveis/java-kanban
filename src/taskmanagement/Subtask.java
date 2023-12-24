@@ -6,16 +6,15 @@ public class Subtask extends Task {
 
     protected Epic epic;
 
-    public Subtask(String name, String description) {
+    //добавмла привязку к эпику в конструктор
+
+    public Subtask(String name, String description, Epic epic) {
         super(name, description);
+        this.epic = epic;
     }
 
     protected Epic getEpic() {
         return epic;
-    }
-
-    protected void setEpic(Epic epic) {
-        this.epic = epic;
     }
 
     @Override

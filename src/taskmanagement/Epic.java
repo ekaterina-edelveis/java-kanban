@@ -1,15 +1,9 @@
 package taskmanagement;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Epic extends Task {
 
-    /*я подумала, что лучший способ привязать подзадачи к эпику,
-    это создать ArrayList подзадач для каждого эпика.
-    Но при работе с подзадачами и эпиком это, конечно, пляски с бубном :)
-
-     */
     protected ArrayList<Subtask> subtasks;
 
     public Epic(String name, String description) {
@@ -20,6 +14,15 @@ public class Epic extends Task {
     protected ArrayList<Subtask> getSubtasks() {
         return subtasks;
     }
+
+    /*
+    сделала setStatus родителя public, чтобы пользователь мог менять статус задачи и подзадачи,
+    но "опустошила" тело этого метода в эпике - вместо этого taskmanager рассчитывает статус эпика,
+    обращаясь напряму к его переменной. Надеюсь, правильно мыслю :)
+     */
+
+    @Override
+    public void setStatus(Status status) {}
 
     @Override
     public String toString() {
