@@ -5,8 +5,6 @@ import java.util.HashMap;
 
 public class TaskManager {
 
-    //изменила модификаторы, инициализировала переменные сразу
-
     private HashMap<Integer, Task> tasks = new HashMap<>();
     private HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private HashMap<Integer, Epic> epics = new HashMap<>();
@@ -20,8 +18,6 @@ public class TaskManager {
         tasks.put(task.getId(), task);
         counter++;
     }
-
-    //доработала метод createEpic, добавила createSubtask
 
     public void createEpic(Epic epic) {
         epic.setId(counter);
@@ -38,7 +34,7 @@ public class TaskManager {
 
         subtasks.put(subtask.getId(), subtask);
 
-        //вычисляем статус эпике
+        //вычисляем статус эпика
         calculateEpicStatus(epicToBeUpdated);
 
     }
@@ -72,8 +68,6 @@ public class TaskManager {
         calculateEpicStatus(epicToBeUpdated);
     }
 
-    //вынесла расчет статуса эпика в отдельный метод
-
     protected void calculateEpicStatus(Epic epic) {
         ArrayList<Status> subtasksStatuses = new ArrayList<>();
         for (Subtask sub : epic.getSubtasks()) {
@@ -84,20 +78,21 @@ public class TaskManager {
                 && !subtasksStatuses.contains(Status.IN_PROGRESS)
                 && !subtasksStatuses.contains(Status.DONE))) {
 
-            epic.status = Status.NEW;
+            //убрала обращение к переменным напрямую
+
+            epic.setStatus(Status.NEW);
 
         } else if (subtasksStatuses.contains(Status.DONE)
                 && !subtasksStatuses.contains(Status.IN_PROGRESS)
                 && !subtasksStatuses.contains(Status.NEW)) {
 
-            epic.status = Status.DONE;
+            epic.setStatus(Status.DONE);
 
         } else {
 
-            epic.status = Status.IN_PROGRESS;
+            epic.setStatus(Status.IN_PROGRESS);
         }
     }
-
 
     public ArrayList<Task> getAllTasks() {
         return new ArrayList<>(tasks.values());
@@ -112,14 +107,9 @@ public class TaskManager {
         return requiredSubtasks;
     }
 
-    //добавила метод для вывода всех подзадач
-
     public ArrayList<Subtask> getAllSubtasks() {
         return new ArrayList<>(subtasks.values());
     }
-
-
-    // убрала лишнюю проверку наличия id из методов findById
 
     public Task findTaskById(int id) {
         return tasks.get(id);
@@ -150,7 +140,6 @@ public class TaskManager {
     public void deleteEpicById(int id) {
         Epic epicToBeDeleted = epics.get(id);
 
-        //улучшила логику удаления подзадач из hashmap
         for (Subtask subtask : epicToBeDeleted.getSubtasks()) {
             subtasks.remove(subtask.getId());
         }

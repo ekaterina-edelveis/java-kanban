@@ -6,8 +6,6 @@ public class Subtask extends Task {
 
     protected Epic epic;
 
-    //добавмла привязку к эпику в конструктор
-
     public Subtask(String name, String description, Epic epic) {
         super(name, description);
         this.epic = epic;

@@ -35,49 +35,13 @@ public class Main {
         manager.createSubtask(subtask3ForEpic2);
 
         System.out.println("Let's test it!");
-        System.out.println("-------Updating and Getting stuff by id");
 
-        task1.setDescription("The dog walks at 9 in the morning");
-        task1.setStatus(Status.DONE);
-        manager.updateTask(task1);
-        System.out.println(manager.findTaskById(1).toString());
-
-
+        epic1.setStatus(Status.DONE);
+        manager.updateEpic(epic1);
+        System.out.println(manager.findEpicById(4).toString());
         subtask1ForEpic1.setStatus(Status.DONE);
         manager.updateSubtask(subtask1ForEpic1);
-        System.out.println(manager.findSubtaskById(5).toString());
         System.out.println(manager.findEpicById(4).toString());
-        manager.deleteSubtaskById(5);
-        System.out.println(manager.findEpicById(4).toString());
-        epic1.setStatus(Status.DONE);
-        System.out.println(manager.findEpicById(4).toString());
-
-        subtask1ForEpic2.setStatus(Status.IN_PROGRESS);
-        manager.updateSubtask(subtask1ForEpic2);
-
-        System.out.println("-------Getting all tasks");
-        ArrayList<Task> tasks = manager.getAllTasks();
-        for (Task task : tasks) {
-            System.out.println(task.toString());
-        }
-
-        System.out.println("-------Getting all epics");
-        ArrayList<Epic> epics = manager.getAllEpics();
-        for (Epic epic : epics) {
-            System.out.println(epic.toString());
-        }
-
-        System.out.println("-------Getting all subtasks");
-        ArrayList<Subtask> subtasks = manager.getAllSubtasks();
-        for (Subtask subtask : subtasks) {
-            System.out.println(subtask.toString());
-        }
-
-        System.out.println("-------Getting all subtasks by epic id");
-        ArrayList<Subtask> checkSubtasks = manager.getAllSubtasksForEpic(6);
-        for (Subtask subtask : checkSubtasks) {
-            System.out.println(subtask.toString());
-        }
 
 
     }
