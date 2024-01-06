@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        TaskManager manager = new TaskManager();
+        TaskManager manager = Managers.getDefault();
 
         Task task1 = new Task("Walk the dog", "The dog walks at 8 a.m.");
         Task task2 = new Task("Go shopping", "Buy milk, bread, meat, veggies");
@@ -35,14 +35,11 @@ public class Main {
         manager.createSubtask(subtask3ForEpic2);
 
         System.out.println("Let's test it!");
-
         epic1.setStatus(Status.DONE);
         manager.updateEpic(epic1);
         System.out.println(manager.findEpicById(4).toString());
         subtask1ForEpic1.setStatus(Status.DONE);
         manager.updateSubtask(subtask1ForEpic1);
         System.out.println(manager.findEpicById(4).toString());
-
-
     }
 }

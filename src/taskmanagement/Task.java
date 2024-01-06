@@ -15,19 +15,19 @@ public class Task {
         this.status = Status.NEW;
     }
 
-    protected String getName() {
+    public String getName() {
         return name;
     }
 
-    protected String getDescription() {
+    public String getDescription() {
         return description;
     }
 
-    protected int getId() {
+    public int getId() {
         return id;
     }
 
-    protected Status getStatus() {
+    public Status getStatus() {
         return status;
     }
 

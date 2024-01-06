@@ -1,7 +1,5 @@
 package taskmanagement;
 
-import taskmanagement.Status;
-
 public class Subtask extends Task {
 
     protected Epic epic;
@@ -11,7 +9,7 @@ public class Subtask extends Task {
         this.epic = epic;
     }
 
-    protected Epic getEpic() {
+    public Epic getEpic() {
         return epic;
     }
 
