@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
 
-    private static TaskManager manager;
+    private TaskManager manager;
 
     @BeforeEach
     public void beforeEach() {
@@ -27,12 +27,5 @@ class EpicTest {
         assertEquals(savedEpic, manager.findEpicById(epicId));
 
     }
-
-        /*
-    В т/з написано, нужно убедиться, что объект Epic нельзя добавить к себе к подзадачи.
-    Но как это тестировать: метода setSubtask нет,
-    а при создании подзадачи manager принимает только объект класса Subtask
-     */
-
 
 }

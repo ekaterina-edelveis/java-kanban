@@ -1,6 +1,7 @@
 package taskmanagement;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
@@ -12,14 +13,13 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (taskHistory.size() == 10){
             taskHistory.remove(0);
         }
-        Task newTask = new Task(task.getName(), task.getDescription());
-        newTask.setId(task.getId());
-        newTask.setStatus(task.getStatus());
-        taskHistory.add(taskHistory.size(), newTask);
+        // убрала создание новой задачи
+        taskHistory.add(task);
     }
 
     @Override
-    public ArrayList<Task> getHistory() {
-        return taskHistory;
+    public List<Task> getHistory() {
+        //поправила - теперь метод возвращает копию списка
+        return List.copyOf(taskHistory);
     }
 }

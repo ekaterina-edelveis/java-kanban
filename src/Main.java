@@ -1,6 +1,7 @@
 import taskmanagement.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -33,13 +34,5 @@ public class Main {
         manager.createSubtask(subtask1ForEpic2);
         manager.createSubtask(subtask2ForEpic2);
         manager.createSubtask(subtask3ForEpic2);
-
-        System.out.println("Let's test it!");
-        epic1.setStatus(Status.DONE);
-        manager.updateEpic(epic1);
-        System.out.println(manager.findEpicById(4).toString());
-        subtask1ForEpic1.setStatus(Status.DONE);
-        manager.updateSubtask(subtask1ForEpic1);
-        System.out.println(manager.findEpicById(4).toString());
     }
 }

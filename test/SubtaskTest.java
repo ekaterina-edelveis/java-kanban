@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SubtaskTest {
 
-    private static TaskManager manager;
+    private TaskManager manager;
 
     @BeforeEach
     public void beforeEach() {
@@ -29,11 +29,4 @@ class SubtaskTest {
         assertEquals(savedSubtask, manager.findSubtaskById(subtaskId));
 
     }
-
-    /*
-    В т/з написано, нужно убедиться, что объект Subtask нельзя сделать своим же эпиком
-    Если честно, не знаю, как это тестировать, ведь метода setEpic у меня нет,
-    а при создании подзадачи нельзя передать ее же в конструктор, иначе программа не запустится
-     */
-
 }

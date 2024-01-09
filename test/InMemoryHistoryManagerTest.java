@@ -4,12 +4,13 @@ import org.junit.jupiter.api.Test;
 import taskmanagement.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InMemoryHistoryManagerTest {
 
-    private static HistoryManager historyManager;
+    private HistoryManager historyManager;
 
     @BeforeEach
     public void beforeEach() {
@@ -22,26 +23,28 @@ public class InMemoryHistoryManagerTest {
         Task task = new Task("Walk the dog", "The dog walks at 8 a.m.");
 
         historyManager.add(task);
-        final ArrayList<Task> history = historyManager.getHistory();
-        assertNotNull(history, "История не пустая.");
-        assertEquals(1, history.size(), "История не пустая.");
+        final List<Task> history = historyManager.getHistory();
+
+        //поправила проверку списка
+        assertNotEquals(0, history.size(), "История пустая.");
+        assertEquals(1, history.size(), "История пустая.");
     }
 
 
     @Test
-    public void shouldSavePreviousStateOfTasks() {
+    public void shouldSaveAllSearchedForTasks() {
+
+        //поправила тест добавления всех задач, которые искал польователь
+
         Task task = new Task("Walk the dog", "The dog walks at 8 a.m.");
-        Task task2 = new Task("Walk the dog", "The dog walks at 9 a.m.");
+        historyManager.add(task);
+        historyManager.add(task);
 
-        ArrayList<Task> expected = new ArrayList<>();
+        List<Task> expected = new ArrayList<>();
         expected.add(task);
-        expected.add(task2);
+        expected.add(task);
 
-        historyManager.add(task);
-        task.setDescription("The dog walks at 9 a.m.");
-        historyManager.add(task);
-
-        ArrayList<Task> actual = historyManager.getHistory();
+        List<Task> actual = historyManager.getHistory();
 
         assertEquals(expected, actual, "Списки не равны");
 

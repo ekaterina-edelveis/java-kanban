@@ -2,6 +2,7 @@ package taskmanagement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -126,21 +127,44 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task findTaskById(int id) {
-        historyManager.add(tasks.get(id));
 
-        return tasks.get(id);
+        //здесь, в эпике и подзадаче исправила логику поиска и работы с задачей
+
+        if(!tasks.containsKey(id)){
+            System.out.println("Задача с таким ID не обнаружена.");
+            return null;
+        }
+        else {
+            Task foundTask = tasks.get(id);
+            historyManager.add(foundTask);
+            return foundTask;
+        }
     }
 
     @Override
     public Epic findEpicById(int id) {
-        historyManager.add(epics.get(id));
-        return epics.get(id);
+        if(!epics.containsKey(id)){
+            System.out.println("Эпик с таким ID не обнаружен.");
+            return null;
+        }
+        else {
+            Epic foundEpic = epics.get(id);
+            historyManager.add(foundEpic);
+            return foundEpic;
+        }
     }
 
     @Override
     public Subtask findSubtaskById(int id) {
-        historyManager.add(subtasks.get(id));
-        return subtasks.get(id);
+        if(!subtasks.containsKey(id)){
+            System.out.println("Подзадача с таким ID не обнаружена.");
+            return null;
+        }
+        else {
+            Subtask foundSubtask = subtasks.get(id);
+            historyManager.add(foundSubtask);
+            return foundSubtask;
+        }
     }
 
     @Override
@@ -189,7 +213,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Task> getHistory() {
+    public List<Task> getHistory() {
         return historyManager.getHistory();
     }
 }

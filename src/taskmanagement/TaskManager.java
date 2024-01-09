@@ -1,6 +1,7 @@
 package taskmanagement;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
 
@@ -40,6 +41,6 @@ public interface TaskManager {
 
     void deleteSubtaskById(int id);
 
-    ArrayList<Task> getHistory();
+    List<Task> getHistory();
 
 }
