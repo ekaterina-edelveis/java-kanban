@@ -128,8 +128,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task findTaskById(int id) {
 
-        //здесь, в эпике и подзадаче исправила логику поиска и работы с задачей
-
         if(!tasks.containsKey(id)){
             System.out.println("Задача с таким ID не обнаружена.");
             return null;
@@ -169,11 +167,23 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllTasks() {
+
+        List <Task> tasksForRemoval = new ArrayList<>();
+        tasksForRemoval.addAll(tasks.values());
+        historyManager.removeAll(tasksForRemoval);
+
         tasks.clear();
+
     }
 
     @Override
     public void deleteAllEpics() {
+
+        List <Task> epicsAndSubtasks = new ArrayList<>();
+        epicsAndSubtasks.addAll(epics.values());
+        epicsAndSubtasks.addAll(subtasks.values());
+        historyManager.removeAll(epicsAndSubtasks);
+
         epics.clear();
         subtasks.clear();
     }
@@ -181,6 +191,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTaskById(int id) {
         tasks.remove(id);
+        historyManager.remove(id);
     }
 
 
@@ -194,6 +205,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         //удаляем эпик
         epics.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -206,6 +218,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         //удаляем подзадачу из hashmap
         subtasks.remove(id);
+        historyManager.remove(id);
 
         //проверяем статус эпика
         calculateEpicStatus(epicToBeUpdated);

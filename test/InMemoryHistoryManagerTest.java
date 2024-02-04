@@ -11,11 +11,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class InMemoryHistoryManagerTest {
 
     private HistoryManager historyManager;
+    private TaskManager taskManager;
 
     @BeforeEach
     public void beforeEach() {
         historyManager = Managers.getDefaultHistory();
-
+        taskManager = Managers.getDefault();
     }
 
     @Test
@@ -25,55 +26,42 @@ public class InMemoryHistoryManagerTest {
         historyManager.add(task);
         final List<Task> history = historyManager.getHistory();
 
-        //поправила проверку списка
         assertNotEquals(0, history.size(), "История пустая.");
         assertEquals(1, history.size(), "История пустая.");
     }
 
-
     @Test
-    public void shouldSaveAllSearchedForTasks() {
+    public void shouldDeletePreviousDuplicatedSearches(){
+        Task task1 = new Task("Walk the dog", "The dog walks at 8 a.m.");
+        Task task2 = new Task("Go shopping", "Buy milk, bread, meat, veggies");
 
-        //поправила тест добавления всех задач, которые искал польователь
+        taskManager.createTask(task1);
+        taskManager.createTask(task2);
 
-        Task task = new Task("Walk the dog", "The dog walks at 8 a.m.");
-        historyManager.add(task);
-        historyManager.add(task);
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.add(task1);
 
+        final List<Task> history = historyManager.getHistory();
         List<Task> expected = new ArrayList<>();
-        expected.add(task);
-        expected.add(task);
+        expected.add(task2);
+        expected.add(task1);
 
-        List<Task> actual = historyManager.getHistory();
-
-        assertEquals(expected, actual, "Списки не равны");
-
+        assertEquals(expected, history, "Списки не равны");
     }
 
     @Test
-    public void shouldNotSurpassTenItemsInList() {
-        for (int i = 0; i < 12; i++) {
-            Task task = new Task("Task", "Description");
-            historyManager.add(task);
-        }
-        assertEquals(10, historyManager.getHistory().size(), "Размер списка превышает 10 объектов.");
+    public void shouldDeleteTaskFromHistory(){
+        Task task1 = new Task("Walk the dog", "The dog walks at 8 a.m.");
 
-    }
+        historyManager.add(task1);
+        historyManager.remove(task1.getId());
 
-    @Test
-    public void shouldDeleteOldAndAddNewTaskWhenListHasTen() {
+        final List<Task> history = historyManager.getHistory();
 
-        for (int i = 1; i <= 11; i++) {
-            Task task = new Task("Task_" + i, "Description_" + i);
-            historyManager.add(task);
-        }
+        assertNotEquals(1, history.size(), "История пустая.");
+        assertEquals(0, history.size(), "История пустая.");
 
-        ArrayList<Task> expected = new ArrayList<>();
-        for (int i = 2; i <= 11; i++) {
-            Task task = new Task("Task_" + i, "Description_" + i);
-            expected.add(task);
-        }
-        assertEquals(expected, historyManager.getHistory(), "Списки не равны");
 
     }
 
