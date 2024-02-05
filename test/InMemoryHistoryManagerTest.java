@@ -58,8 +58,6 @@ public class InMemoryHistoryManagerTest {
         historyManager.remove(task1.getId());
 
         final List<Task> history = historyManager.getHistory();
-
-        assertNotEquals(1, history.size(), "История пустая.");
         assertEquals(0, history.size(), "История пустая.");
 
 

@@ -48,11 +48,19 @@ public class Main {
 
         manager.deleteTaskById(task2Id);
 
+        System.out.println("Getting history #1");
         List<Task> history = manager.getHistory();
         for(Task task : history){
         System.out.println(task.getName());
         }
 
+        manager.deleteAllTasks();
+
+        System.out.println("Getting history #2");
+        List<Task> history2 = manager.getHistory();
+        for(Task task : history2){
+            System.out.println(task.getName());
+        }
 
 
 
