@@ -76,7 +76,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public List<Task> getHistory() {
 
-        ArrayList<Task> taskHistory = new ArrayList<>();
+        List<Task> taskHistory = new ArrayList<>();
         Node temp = head;
         for(int i = 0; i < linkedTaskHistory.size(); i++){
             taskHistory.add(temp.data);
@@ -95,12 +95,11 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void removeAll(List<Task> tasks){
-
-        for(Task task : tasks){
+    public void removeAll(Collection tasks){
+        List<Task> collected = List.copyOf(tasks);
+        for(Task task : collected){
             remove(task.getId());
         }
-
 
     }
 }

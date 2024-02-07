@@ -40,13 +40,7 @@ public class Main {
 
         manager.findEpicById(epic1Id);
         manager.findTaskById(task1Id);
-        manager.findSubtaskById(sub4Id);
         manager.findTaskById(task2Id);
-        manager.findEpicById(epic2Id);
-        manager.findEpicById(epic1Id);
-        manager.findSubtaskById(sub1Id);
-
-        manager.deleteTaskById(task2Id);
 
         System.out.println("Getting history #1");
         List<Task> history = manager.getHistory();
