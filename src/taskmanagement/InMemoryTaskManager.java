@@ -176,7 +176,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteAllEpics() {
 
-        List <Task> epicsAndSubtasks = new ArrayList<>();
+        Collection<Task> epicsAndSubtasks = new ArrayList<>();
         epicsAndSubtasks.addAll(epics.values());
         epicsAndSubtasks.addAll(subtasks.values());
         historyManager.removeAll(epicsAndSubtasks);
