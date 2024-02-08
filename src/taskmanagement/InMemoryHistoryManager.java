@@ -95,9 +95,8 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void removeAll(Collection tasks){
-        List<Task> collected = List.copyOf(tasks);
-        for(Task task : collected){
+    public void removeAll(Collection<Task> tasks){
+        for(Task task : tasks){
             remove(task.getId());
         }
 
