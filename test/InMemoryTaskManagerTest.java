@@ -3,6 +3,7 @@ import org.junit.jupiter.api.Test;
 import taskmanagement.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -133,6 +134,30 @@ class InMemoryTaskManagerTest {
 
         manager.deleteEpicById(epicId);
         assertEquals(0, manager.getAllSubtasks().size());
+
+    }
+
+    @Test
+    public void shouldNotFindDeletedTaskById(){
+        Task task = new Task("Walk the dog", "The dog walks at 8 a.m.");
+        int taskId = manager.createTask(task);
+        manager.deleteTaskById(taskId);
+        Task actual = manager.findTaskById(taskId);
+
+        assertNull(actual);
+    }
+
+    @Test
+    public void shouldNotKeepDeletedSubTaskInEpic(){
+        Epic epic = new Epic("Do the project", "Create a kanban for Yandex Practicum");
+        int epicId = manager.createEpic(epic);
+
+        Subtask subtask = new Subtask("Add new functionality",
+                "Create interfaces", epic);
+        int subtaskId = manager.createSubtask(subtask);
+        manager.deleteSubtaskById(subtaskId);
+
+        assertEquals(0, manager.getAllSubtasksForEpic(epicId).size());
 
     }
 

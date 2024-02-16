@@ -1,6 +1,7 @@
 package taskmanagement;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -116,8 +117,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public ArrayList<Subtask> getAllSubtasksForEpic(int epicId) {
-        ArrayList<Subtask> requiredSubtasks = new ArrayList<>(epics.get(epicId).getSubtasks());
-        return requiredSubtasks;
+        return new ArrayList<>(epics.get(epicId).getSubtasks());
     }
 
     @Override
@@ -127,8 +127,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task findTaskById(int id) {
-
-        //здесь, в эпике и подзадаче исправила логику поиска и работы с задачей
 
         if(!tasks.containsKey(id)){
             System.out.println("Задача с таким ID не обнаружена.");
@@ -169,11 +167,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllTasks() {
+        historyManager.removeAll(tasks.values());
+
         tasks.clear();
+
     }
 
     @Override
     public void deleteAllEpics() {
+
+        Collection<Task> epicsAndSubtasks = new ArrayList<>();
+        epicsAndSubtasks.addAll(epics.values());
+        epicsAndSubtasks.addAll(subtasks.values());
+        historyManager.removeAll(epicsAndSubtasks);
+
         epics.clear();
         subtasks.clear();
     }
@@ -181,6 +188,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTaskById(int id) {
         tasks.remove(id);
+        historyManager.remove(id);
     }
 
 
@@ -192,8 +200,9 @@ public class InMemoryTaskManager implements TaskManager {
             subtasks.remove(subtask.getId());
         }
 
-        //удаляем эпик
+
         epics.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -206,6 +215,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         //удаляем подзадачу из hashmap
         subtasks.remove(id);
+        historyManager.remove(id);
 
         //проверяем статус эпика
         calculateEpicStatus(epicToBeUpdated);
