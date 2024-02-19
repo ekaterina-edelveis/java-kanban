@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Epic extends Task {
 
-    protected ArrayList<Subtask> subtasks;
+    public ArrayList<Subtask> subtasks;
 
     public Epic(String name, String description) {
         super(name, description);
@@ -16,12 +16,8 @@ public class Epic extends Task {
     }
 
     @Override
-    public String toString() {
-        return "Epic{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", id=" + id +
-                ", status=" + status +
-                '}';
+    public String toString(){
+        return id + "," + type + "," + name + "," + status + "," + description;
     }
+
 }

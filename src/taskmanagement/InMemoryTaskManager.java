@@ -1,23 +1,21 @@
 package taskmanagement;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final HashMap<Integer, Task> tasks = new HashMap<>();
-    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    private final HashMap<Integer, Epic> epics = new HashMap<>();
+    protected final HashMap<Integer, Task> tasks = new HashMap<>();
+    protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    protected final HashMap<Integer, Epic> epics = new HashMap<>();
 
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected final HistoryManager historyManager = Managers.getDefaultHistory();
 
-    private int counter = 1;
+    protected int counter = 1;
 
     @Override
     public int createTask(Task task) {
         task.setId(counter);
+        task.setType(TaskType.TASK);
         tasks.put(task.getId(), task);
         counter++;
         return task.getId();
@@ -26,6 +24,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int createEpic(Epic epic) {
         epic.setId(counter);
+        epic.setType(TaskType.EPIC);
         epics.put(epic.getId(), epic);
         counter++;
 
@@ -35,6 +34,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int createSubtask(Subtask subtask) {
         subtask.setId(counter);
+        subtask.setType(TaskType.SUBTASK);
         counter++;
 
         Epic epicToBeUpdated = subtask.getEpic();
@@ -225,5 +225,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    public TreeMap<Integer, Task> sort(){
+        TreeMap<Integer, Task> sortedTasks = new TreeMap<>();
+        sortedTasks.putAll(tasks);
+        sortedTasks.putAll(epics);
+        sortedTasks.putAll(subtasks);
+
+        return sortedTasks;
     }
 }
