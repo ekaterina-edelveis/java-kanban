@@ -13,8 +13,8 @@ public class Subtask extends Task {
         return epic;
     }
 
-    @Override
-    public String toString(){
+
+    public String toCvs(){
         return id + "," + type + "," + name + "," + status + "," + description + "," + epic.getId();
     }
 

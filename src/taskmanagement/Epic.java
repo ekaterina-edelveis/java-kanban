@@ -1,23 +1,21 @@
 package taskmanagement;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Epic extends Task {
 
-    public ArrayList<Subtask> subtasks;
+    protected List<Subtask> subtasks;
 
     public Epic(String name, String description) {
         super(name, description);
         subtasks = new ArrayList<>();
     }
 
-    public ArrayList<Subtask> getSubtasks() {
+    public List<Subtask> getSubtasks() {
         return subtasks;
     }
 
-    @Override
-    public String toString(){
-        return id + "," + type + "," + name + "," + status + "," + description;
-    }
+
 
 }

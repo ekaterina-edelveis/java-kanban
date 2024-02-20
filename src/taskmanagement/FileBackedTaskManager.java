@@ -6,13 +6,8 @@ import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
 
-    public File backupFile;
-    public File backupHistory;
-
-    /*
-    Хранит историю и таски в отдельных файлах, так как
-    они обновляются в разных методах, поэтому нет смысла лишний раз перезаписывать другой файл, мне кажется.
-     */
+    private final File backupFile;
+    private final File backupHistory;
 
     public FileBackedTaskManager(File file, File history) {
         this.backupFile = file;
@@ -147,18 +142,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private void save() {
-
-        /*
-        если сортировать все задачи по id, то
-        1. эпики гарантированно будут восстановлены до подзадач
-        2. можно установить счеткик айдишников
-         */
         TreeMap<Integer, Task> sortedTasks = super.sort();
 
         try (FileWriter writer = new FileWriter(backupFile, StandardCharsets.UTF_8)) {
             writer.write("id,type,name,status,description,epic\n");
             for (Task task : sortedTasks.values()) {
-                writer.write(task.toString() + "\n");
+                writer.write(task.toCvs() + "\n");
             }
 
         } catch (IOException ex) {
@@ -180,8 +169,44 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     private void fromString(String value) {
         String[] taskData = value.split(",");
+        int id = Integer.parseInt(taskData[0]);
+        TaskType type = TaskType.valueOf(taskData[1]);
+        String name = taskData[2];
+        Status status = Status.valueOf(taskData[3]);
+        String description = taskData[4];
 
-        if (TaskType.valueOf(taskData[1]) == TaskType.TASK) {
+        if (type == TaskType.TASK) {
+            Task task = new Task(name, description);
+            task.setId(id);
+            task.setType(type);
+            task.setStatus(status);
+
+            tasks.put(task.getId(), task);
+
+        } else if (type == TaskType.EPIC) {
+            Epic task = new Epic(name, description);
+
+            task.setId(id);
+            task.setType(type);
+            task.setStatus(status);
+
+            epics.put(task.getId(), task);
+
+        } else if (type == TaskType.SUBTASK) {
+            int epicId = Integer.parseInt(taskData[5]);
+
+            Epic epic = super.epics.get(epicId);
+            Subtask task = new Subtask(name, description, epic);
+            task.setId(id);
+            task.setType(type);
+            task.setStatus(status);
+
+            subtasks.put(task.getId(), task);
+            epic.getSubtasks().add(task);
+        }
+
+        /*
+                if (TaskType.valueOf(taskData[1]) == TaskType.TASK) {
             Task task = new Task(taskData[2], taskData[4]);
             task.setId(Integer.parseInt(taskData[0]));
             task.setType(TaskType.valueOf(taskData[1]));
@@ -208,6 +233,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             subtasks.put(task.getId(), task);
             epic.getSubtasks().add(task);
         }
+         */
 
 
 
@@ -259,6 +285,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
 
+    //не получается сделать метод static, всё летит :(
     public void loadFromFile(File file, File history) {
 
         if(file.length() != 0){

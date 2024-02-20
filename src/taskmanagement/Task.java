@@ -72,8 +72,19 @@ public class Task {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
+        return "Task{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", id=" + id +
+                ", status=" + status +
+                ", type=" + type +
+                '}';
+    }
+
+    public String toCvs(){
         return id + "," + type + "," + name + "," + status + "," + description;
     }
+
 
 }
