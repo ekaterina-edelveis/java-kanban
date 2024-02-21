@@ -4,9 +4,10 @@ id,type,name,status,description,epic
 3,SUBTASK,The talk,NEW,Prepare the speech,1
 4,TASK,Walk the dog,NEW,The dog walks at 8
 5,TASK,Go shopping,NEW,Buy veggies
-6,EPIC,Do the project,IN_PROGRESS,Create a kanban for Yandex Practicum
+6,EPIC,Do the project,DONE,Create a kanban for Yandex Practicum
 7,SUBTASK,Add a new feature,DONE,Write classes,6
-8,SUBTASK,Run tests,NEW,check functionality,6
+8,SUBTASK,Run tests,DONE,check functionality,6
 9,TASK,Do homework,NEW,Write an essay
 10,TASK,Fix the door,NEW,Squeaking
 11,TASK,Read a book,NEW,30 pages
+12,TASK,Cook dinner,NEW,buy meat and spices

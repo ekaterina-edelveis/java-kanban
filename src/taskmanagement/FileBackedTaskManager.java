@@ -12,7 +12,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     public FileBackedTaskManager(File file, File history) {
         this.backupFile = file;
         this.backupHistory = history;
-        loadFromFile(file, history);
+        // loadFromFile(file, history);
 
     }
 
@@ -151,7 +151,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             }
 
         } catch (IOException ex) {
-            System.out.println("Произошла ошибка при записи резервной копии менеджера.");
+            throw new ManagerSaveException("Произошла ошибка во время чтения файла менеджера.");
         }
 
     }
@@ -162,7 +162,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         try (FileWriter writer = new FileWriter(backupHistory, StandardCharsets.UTF_8)) {
             writer.write(history);
         } catch (IOException ex) {
-            System.out.println("Произошла ошибка при записи резервной копии истории.");
+            throw new ManagerSaveException("Произошла ошибка во время чтения файла менеджера.");
         }
 
     }
@@ -205,41 +205,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             epic.getSubtasks().add(task);
         }
 
-        /*
-                if (TaskType.valueOf(taskData[1]) == TaskType.TASK) {
-            Task task = new Task(taskData[2], taskData[4]);
-            task.setId(Integer.parseInt(taskData[0]));
-            task.setType(TaskType.valueOf(taskData[1]));
-            task.setStatus(Status.valueOf(taskData[3]));
-
-            tasks.put(task.getId(), task);
-
-        } else if (TaskType.valueOf(taskData[1]) == TaskType.EPIC) {
-            Epic task = new Epic(taskData[2], taskData[4]);
-
-            task.setId(Integer.parseInt(taskData[0]));
-            task.setType(TaskType.valueOf(taskData[1]));
-            task.setStatus(Status.valueOf(taskData[3]));
-
-
-            epics.put(task.getId(), task);
-
-        } else if (TaskType.valueOf(taskData[1]) == TaskType.SUBTASK) {
-            Epic epic = super.epics.get(Integer.parseInt(taskData[5]));
-            Subtask task = new Subtask(taskData[2], taskData[4], epic);
-            task.setId(Integer.parseInt(taskData[0]));
-            task.setType(TaskType.valueOf(taskData[1]));
-            task.setStatus(Status.valueOf(taskData[3]));
-            subtasks.put(task.getId(), task);
-            epic.getSubtasks().add(task);
-        }
-         */
-
-
 
     }
 
-    public void setIdCounter(String line){
+    public void setIdCounter(String line) {
 
         String[] data = line.split(",");
         super.counter = Integer.parseInt(data[0]) + 1;
@@ -268,60 +237,56 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
         for (String idValue : recoveredTasks) {
             int id = Integer.parseInt(idValue);
-           if(super.tasks.containsKey(id)){
-               Task task = super.tasks.get(id);
-               super.historyManager.add(task);
-           }
-           else if(super.epics.containsKey(id)){
-               Epic epic = super.epics.get(id);
-               super.historyManager.add(epic);
-           }
-           else {
-               Subtask subtask = super.subtasks.get(id);
-               super.historyManager.add(subtask);
-           }
+            if (super.tasks.containsKey(id)) {
+                Task task = super.tasks.get(id);
+                super.historyManager.add(task);
+            } else if (super.epics.containsKey(id)) {
+                Epic epic = super.epics.get(id);
+                super.historyManager.add(epic);
+            } else {
+                Subtask subtask = super.subtasks.get(id);
+                super.historyManager.add(subtask);
+            }
         }
 
     }
 
 
-    //не получается сделать метод static, всё летит :(
-    public void loadFromFile(File file, File history) {
+    public static FileBackedTaskManager loadFromFile(File file, File history) {
 
-        if(file.length() != 0){
+        FileBackedTaskManager manager = new FileBackedTaskManager(file, history);
+
+        if (file.length() != 0) {
             try (BufferedReader reader =
                          new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
                 String lastLine = "";
 
-                //нужно пропустить первую строку с хедерами
                 reader.readLine();
                 while (reader.ready()) {
                     String line = reader.readLine();
-                    fromString(line);
+                    manager.fromString(line);
                     lastLine = line;
                 }
-                setIdCounter(lastLine);
+                manager.setIdCounter(lastLine);
 
             } catch (IOException e) {
-                System.out.println("Произошла ошибка во время чтения файла менеджера.");
+                throw new ManagerSaveException("Произошла ошибка во время чтения файла менеджера.");
+
             }
-
-
         }
 
-        if(history.length() != 0){
+        if (history.length() != 0) {
             try (BufferedReader historyReader = new BufferedReader(new FileReader(history, StandardCharsets.UTF_8))) {
                 historyReader.readLine();
                 String ids = historyReader.readLine();
-                historyFromString(ids);
+                manager.historyFromString(ids);
 
 
             } catch (IOException e) {
-                System.out.println("Произошла ошибка во время чтения файла истории.");
+                throw new ManagerSaveException("Произошла ошибка во время чтения файла менеджера.");
             }
         }
-
-
-
+        return manager;
     }
 }
+
