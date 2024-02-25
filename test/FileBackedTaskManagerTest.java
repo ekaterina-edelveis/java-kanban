@@ -1,0 +1,134 @@
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import taskmanagement.*;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class FileBackedTaskManagerTest {
+
+    @Test
+    public void shouldSaveTasksToFile() throws IOException {
+        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+
+        TaskManager manager = Managers.getFileBacked(tasks, history);
+
+
+        Task t1 = new Task("Walk the dog", "The dog walks at 8");
+        Task t2 = new Task("Go shopping", "Buy veggies");
+        manager.createTask(t1);
+        manager.createTask(t2);
+        int counter;
+        String task1;
+
+        try {
+            final List<String> lines = Files.readAllLines(tasks.toPath(), StandardCharsets.UTF_8);
+            counter = lines.size();
+            task1 = lines.get(1);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String expected = "1,TASK,Walk the dog,NEW,The dog walks at 8";
+
+        tasks.delete();
+        history.delete();
+
+        assertEquals(3, counter);
+        assertEquals(expected, task1);
+
+
+    }
+
+    @Test
+    public void shouldSaveHistoryToFile() throws IOException {
+
+        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+
+        TaskManager manager = Managers.getFileBacked(tasks, history);
+
+        Task t1 = new Task("Walk the dog", "The dog walks at 8");
+
+        manager.createTask(t1);
+        manager.findTaskById(1);
+
+        int counter = 0;
+
+        try {
+            final List<String> lines = Files.readAllLines(history.toPath(), StandardCharsets.UTF_8);
+            counter = lines.size();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        tasks.delete();
+        history.delete();
+
+        assertEquals(2, counter);
+
+
+    }
+
+    @Test
+    public void shouldRestoreTasksFromFile() throws IOException {
+        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+
+        TaskManager manager = Managers.getFileBacked(tasks, history);
+
+
+        Task t1 = new Task("Walk the dog", "The dog walks at 8");
+        manager.createTask(t1);
+
+        TaskManager manager2 = Managers.getFileBacked(tasks, history);
+
+
+        Task task = manager2.findTaskById(1);
+        String name = task.getName();
+        String expected = "Walk the dog";
+
+
+        tasks.delete();
+        history.delete();
+
+        assertEquals(expected, name);
+    }
+
+    @Test
+    public void shouldRestoreHistoryFromFile() throws IOException {
+
+        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+
+        TaskManager manager = Managers.getFileBacked(tasks, history);
+
+        Task t1 = new Task("Walk the dog", "The dog walks at 8");
+        manager.createTask(t1);
+        manager.findTaskById(1);
+
+
+        TaskManager manager2 = Managers.getFileBacked(tasks, history);
+
+        List<Task> recoveredHistory = manager2.getHistory();
+        String name = "";
+        for(Task task : recoveredHistory){
+           name = task.getName();
+        }
+        String expected = "Walk the dog";
+
+        tasks.delete();
+        history.delete();
+
+        assertEquals(expected, name);
+    }
+
+
+
+}
