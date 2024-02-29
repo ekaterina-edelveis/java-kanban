@@ -1,11 +1,13 @@
 package taskmanagement;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class Epic extends Task {
 
     protected List<Subtask> subtasks;
+
 
     public Epic(String name, String description) {
         super(name, description);
@@ -16,6 +18,10 @@ public class Epic extends Task {
         return subtasks;
     }
 
+    public String toCvs() {
+        return id + "," + type + "," + name + "," + status + "," + description;
+    }
 
 
 }
+

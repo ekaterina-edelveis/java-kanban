@@ -19,14 +19,14 @@ class SubtaskTest {
         manager.createEpic(epic);
 
         Subtask subtask = new Subtask("Add new functionality",
-                "Create interfaces", epic);
-        int subtaskId = manager.createSubtask(subtask);
+                "Create interfaces", "27.02.24 19:30", 90, epic);
+        manager.createSubtask(subtask);
 
-        Subtask savedSubtask = manager.findSubtaskById(subtaskId);
+        Subtask savedSubtask = manager.findSubtaskById(subtask.getId());
         subtask.setDescription("Create interfaces and split classes");
         manager.updateSubtask(subtask);
 
-        assertEquals(savedSubtask, manager.findSubtaskById(subtaskId));
+        assertEquals(savedSubtask, manager.findSubtaskById(subtask.getId()));
 
     }
 }

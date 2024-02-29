@@ -6,11 +6,14 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTaskManagerTest {
+
+    final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     @Test
     public void shouldSaveTasksToFile() throws IOException {
@@ -99,6 +102,34 @@ class FileBackedTaskManagerTest {
         history.delete();
 
         assertEquals(expected, name);
+    }
+
+    @Test
+    public void shouldRestoreTasksWithTimeFromFile() throws IOException {
+
+        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+
+        TaskManager manager = Managers.getFileBacked(tasks, history);
+
+        Task t1 = new Task("cook dinner", "pasta with meatballs", "01.03.24 19:00", 45);
+        manager.createTask(t1);
+
+        Task t2 = new Task("write an article", "risc-v java port", "01.03.24 10:00", 200);
+        manager.createTask(t2);
+
+        TaskManager manager2 = Managers.getFileBacked(tasks, history);
+
+        Task task = manager2.findTaskById(1);
+        String expected = "01.03.24 19:00";
+        String actual = task.getStartTime().format(DATE_TIME_FORMATTER);
+
+        tasks.delete();
+        history.delete();
+
+        assertEquals(expected, actual);
+
+
     }
 
     @Test
