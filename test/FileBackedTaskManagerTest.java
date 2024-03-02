@@ -16,8 +16,9 @@ class FileBackedTaskManagerTest {
 
     @Test
     public void shouldSaveTasksToFile() throws IOException {
-        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
-        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+
+        File tasks = File.createTempFile("backup-copy", ".csv");
+        File history = File.createTempFile("backup-copy", ".csv");
 
         TaskManager manager = Managers.getFileBacked(tasks, history);
 
@@ -37,10 +38,10 @@ class FileBackedTaskManagerTest {
             throw new RuntimeException(e);
         }
 
-        String expected = "1,TASK,Walk the dog,NEW,The dog walks at 8";
+        String expected = "1,TASK,Walk the dog,NEW,The dog walks at 8,null,0";
 
-        tasks.delete();
-        history.delete();
+        tasks.deleteOnExit();
+        history.deleteOnExit();
 
         assertEquals(3, counter);
         assertEquals(expected, task1);
@@ -51,8 +52,8 @@ class FileBackedTaskManagerTest {
     @Test
     public void shouldSaveHistoryToFile() throws IOException {
 
-        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
-        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+        File tasks = File.createTempFile("backup-copy", ".csv");
+        File history = File.createTempFile("backup-copy", ".csv");
 
         TaskManager manager = Managers.getFileBacked(tasks, history);
 
@@ -70,8 +71,8 @@ class FileBackedTaskManagerTest {
             throw new RuntimeException(e);
         }
 
-        tasks.delete();
-        history.delete();
+        tasks.deleteOnExit();
+        history.deleteOnExit();
 
         assertEquals(2, counter);
 
@@ -80,8 +81,9 @@ class FileBackedTaskManagerTest {
 
     @Test
     public void shouldRestoreTasksFromFile() throws IOException {
-        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
-        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+
+        File tasks = File.createTempFile("backup-copy", ".csv");
+        File history = File.createTempFile("backup-copy", ".csv");
 
         TaskManager manager = Managers.getFileBacked(tasks, history);
 
@@ -96,9 +98,8 @@ class FileBackedTaskManagerTest {
         String name = task.getName();
         String expected = "Walk the dog";
 
-
-        tasks.delete();
-        history.delete();
+        tasks.deleteOnExit();
+        history.deleteOnExit();
 
         assertEquals(expected, name);
     }
@@ -106,8 +107,8 @@ class FileBackedTaskManagerTest {
     @Test
     public void shouldRestoreTasksWithTimeFromFile() throws IOException {
 
-        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
-        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+        File tasks = File.createTempFile("backup-copy", ".csv");
+        File history = File.createTempFile("backup-copy", ".csv");
 
         TaskManager manager = Managers.getFileBacked(tasks, history);
 
@@ -123,8 +124,8 @@ class FileBackedTaskManagerTest {
         String expected = "01.03.24 19:00";
         String actual = task.getStartTime().format(dateTimeFormatter);
 
-        tasks.delete();
-        history.delete();
+        tasks.deleteOnExit();
+        history.deleteOnExit();
 
         assertEquals(expected, actual);
 
@@ -134,8 +135,8 @@ class FileBackedTaskManagerTest {
     @Test
     public void shouldRestoreHistoryFromFile() throws IOException {
 
-        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
-        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+        File tasks = File.createTempFile("backup-copy", ".csv");
+        File history = File.createTempFile("backup-copy", ".csv");
 
         TaskManager manager = Managers.getFileBacked(tasks, history);
 
@@ -153,8 +154,8 @@ class FileBackedTaskManagerTest {
         }
         String expected = "Walk the dog";
 
-        tasks.delete();
-        history.delete();
+        tasks.deleteOnExit();
+        history.deleteOnExit();
 
         assertEquals(expected, name);
     }
