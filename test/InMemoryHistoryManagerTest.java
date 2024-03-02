@@ -31,7 +31,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void shouldDeletePreviousDuplicatedSearches(){
+    public void shouldDeletePreviousDuplicatedSearches() {
         Task task1 = new Task("Walk the dog", "The dog walks at 8 a.m.");
         Task task2 = new Task("Go shopping", "Buy milk, bread, meat, veggies");
 
@@ -51,7 +51,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void shouldDeleteTaskFromHistory(){
+    public void shouldDeleteTaskFromHistory() {
         Task task1 = new Task("Walk the dog", "The dog walks at 8 a.m.");
 
         historyManager.add(task1);

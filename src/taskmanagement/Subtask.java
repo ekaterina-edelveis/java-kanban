@@ -4,7 +4,7 @@ public class Subtask extends Task {
 
     protected Epic epic;
 
-    public Subtask(String name, String description, Epic epic){
+    public Subtask(String name, String description, Epic epic) {
         super(name, description);
         this.epic = epic;
     }
@@ -19,9 +19,8 @@ public class Subtask extends Task {
         return epic;
     }
 
-
-    public String toCvs(){
-        if (startTime == null  && duration == null){
+    public String toCvs() {
+        if (startTime == null && duration == null) {
             return id + "," + type + "," + name + "," + status + ","
                     + description + "," + getStartTime()
                     + "," + "0" + "," + epic.getId();

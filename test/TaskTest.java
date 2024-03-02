@@ -20,7 +20,7 @@ class TaskTest {
     }
 
     @Test
-    public void treatsTasksWithSameIdAsEqual(){
+    public void treatsTasksWithSameIdAsEqual() {
         Task task = new Task("Walk the dog", "The dog walks at 8 a.m.");
         manager.createTask(task);
         Task savedTask = manager.findTaskById(task.getId());
@@ -32,7 +32,7 @@ class TaskTest {
 
 
     @Test
-    public void shouldCalculateEndTime(){
+    public void shouldCalculateEndTime() {
         Task task = new Task("Walk the dog", "The dog walks at 8 a.m.", "04.03.24 20:30", 30);
         manager.createTask(task);
 
@@ -41,7 +41,6 @@ class TaskTest {
 
         assertEquals(expected, actual);
     }
-
 
 
 }

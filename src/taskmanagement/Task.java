@@ -120,7 +120,7 @@ public class Task implements Comparable<Task> {
     }
 
     public String toCvs() {
-        if (startTime == null && duration == null){
+        if (startTime == null && duration == null) {
             return id + "," + type + "," + name + "," + status + ","
                     + description + "," + getStartTime()
                     + "," + "0";

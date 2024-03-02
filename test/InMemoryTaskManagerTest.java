@@ -149,7 +149,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void shouldPrioritizeTasks(){
+    public void shouldPrioritizeTasks() {
         Task t1 = new Task("cook dinner", "pasta with meatballs", "01.03.24 19:00", 45);
         manager.createTask(t1);
 
@@ -170,7 +170,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void shouldNotCreateTaskIfTimeOverlap(){
+    public void shouldNotCreateTaskIfTimeOverlap() {
 
         Task t1 = new Task("cook dinner", "pasta with meatballs", "01.03.24 19:00", 45);
         manager.createTask(t1);
@@ -195,7 +195,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void shouldNotUpdateTaskIfTimeOverlap(){
+    public void shouldNotUpdateTaskIfTimeOverlap() {
 
         Task t1 = new Task("cook dinner", "pasta with meatballs", "01.03.24 19:00", 45);
         manager.createTask(t1);
@@ -213,7 +213,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void shouldUpdateTaskIfNoTimeOverlap(){
+    public void shouldUpdateTaskIfNoTimeOverlap() {
 
         Task t1 = new Task("cook dinner", "pasta with meatballs", "01.03.24 19:00", 45);
         manager.createTask(t1);

@@ -32,7 +32,7 @@ class EpicTest {
     }
 
     @Test
-    public void shouldUpdateEpicStatus(){
+    public void shouldUpdateEpicStatus() {
         Epic epic = new Epic("Do the project", "Create a kanban for Yandex Practicum");
         manager.createEpic(epic);
 
@@ -48,7 +48,7 @@ class EpicTest {
     }
 
     @Test
-    public void shouldNotCompleteEpicIfUndoneSubtasks(){
+    public void shouldNotCompleteEpicIfUndoneSubtasks() {
         Epic epic = new Epic("Do the project", "Create a kanban for Yandex Practicum");
         manager.createEpic(epic);
 
@@ -67,7 +67,7 @@ class EpicTest {
     }
 
     @Test
-    public void shouldCompleteEpicIfAllSubtasksDone(){
+    public void shouldCompleteEpicIfAllSubtasksDone() {
         Epic epic = new Epic("Do the project", "Create a kanban for Yandex Practicum");
         manager.createEpic(epic);
 
@@ -89,7 +89,7 @@ class EpicTest {
     }
 
     @Test
-    public void shouldSetEpicStartAtEarliestSubtask(){
+    public void shouldSetEpicStartAtEarliestSubtask() {
         Epic epic = new Epic("Do the project", "Create a kanban for Yandex Practicum");
         manager.createEpic(epic);
 
@@ -112,7 +112,7 @@ class EpicTest {
     }
 
     @Test
-    public void shouldCountDurationOfEpic(){
+    public void shouldCountDurationOfEpic() {
 
         Epic epic = new Epic("Do the project", "Create a kanban for Yandex Practicum");
         manager.createEpic(epic);
@@ -138,8 +138,6 @@ class EpicTest {
         assertEquals(expected, actual);
 
     }
-
-
 
 
 }

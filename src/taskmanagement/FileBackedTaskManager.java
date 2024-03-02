@@ -210,14 +210,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             String start = taskData[5];
             long duration = Long.parseLong(taskData[6]);
             Task task;
-            if(start.equals("null")){
+            if (start.equals("null")) {
                 task = new Task(name, description);
                 task.setId(id);
                 task.setType(type);
                 task.setStatus(status);
                 tasks.put(task.getId(), task);
-            }
-            else{
+            } else {
                 task = new Task(name, description, start, duration);
                 task.setId(id);
                 task.setType(type);
@@ -244,15 +243,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             Epic epic = super.epics.get(epicId);
 
             Subtask task;
-            if(start.equals("null")){
+            if (start.equals("null")) {
                 task = new Subtask(name, description, epic);
                 task.setId(id);
                 task.setType(type);
                 task.setStatus(status);
 
                 subtasks.put(task.getId(), task);
-            }
-            else{
+            } else {
                 task = new Subtask(name, description, start, duration, epic);
                 task.setId(id);
                 task.setType(type);
@@ -270,7 +268,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
         }
 
-
     }
 
     public void setIdCounter(String line) {
@@ -279,7 +276,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         super.counter = Integer.parseInt(data[0]) + 1;
 
     }
-
 
     private String historyToString() {
         List<Task> history = super.getHistory();

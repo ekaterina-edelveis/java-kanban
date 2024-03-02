@@ -82,6 +82,7 @@ public class InMemoryTaskManager implements TaskManager {
                 calculateEpicStartTime(epicToBeUpdated);
                 calculateEpicDuration(epicToBeUpdated);
 
+
             } else if (prioritizedTasks.isEmpty()
                     || findSlots(subtask.getStartTime(), subtask.getEndTime())) {
 
@@ -100,6 +101,7 @@ public class InMemoryTaskManager implements TaskManager {
                 calculateEpicStartTime(epicToBeUpdated);
                 calculateEpicDuration(epicToBeUpdated);
 
+
             } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
         } catch (ManagerSaveException ex) {
             System.out.println(ex.getMessage());
@@ -111,7 +113,6 @@ public class InMemoryTaskManager implements TaskManager {
         tasks.put(task.getId(), task);
 
     }
-
 
     @Override
     public void updateEpic(Epic epic) {
@@ -143,7 +144,6 @@ public class InMemoryTaskManager implements TaskManager {
         calculateEpicStatus(epicToBeUpdated);
         calculateEpicStartTime(epicToBeUpdated);
         calculateEpicDuration(epicToBeUpdated);
-
 
     }
 
@@ -206,7 +206,7 @@ public class InMemoryTaskManager implements TaskManager {
                 .filter(Objects::nonNull)
                 .min(LocalDateTime::compareTo);
 
-        if(epicStart.isPresent()){
+        if (epicStart.isPresent()) {
             String start = epicStart.get().format(epic.DATE_TIME_FORMATTER);
             epic.setStartTime(start);
         }

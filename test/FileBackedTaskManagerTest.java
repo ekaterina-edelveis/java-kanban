@@ -149,8 +149,8 @@ class FileBackedTaskManagerTest {
 
         List<Task> recoveredHistory = manager2.getHistory();
         String name = "";
-        for(Task task : recoveredHistory){
-           name = task.getName();
+        for (Task task : recoveredHistory) {
+            name = task.getName();
         }
         String expected = "Walk the dog";
 
@@ -159,7 +159,6 @@ class FileBackedTaskManagerTest {
 
         assertEquals(expected, name);
     }
-
 
 
 }

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ManagersTest {
 
     @Test
-    public void createFunctionalTaskManager(){
+    public void createFunctionalTaskManager() {
         TaskManager manager = Managers.getDefault();
 
         //видимо, здесь как раз стоит проверить на NPE? если менеджер не создался, оно и выбросится
@@ -15,7 +15,7 @@ public class ManagersTest {
     }
 
     @Test
-    public void createFunctionalHistoryManager(){
+    public void createFunctionalHistoryManager() {
         HistoryManager historyManager = Managers.getDefaultHistory();
         assertNotNull(historyManager.getHistory());
 
