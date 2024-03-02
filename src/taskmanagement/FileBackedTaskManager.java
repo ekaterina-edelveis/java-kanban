@@ -13,7 +13,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     public FileBackedTaskManager(File file, File history) {
         this.backupFile = file;
         this.backupHistory = history;
-        // loadFromFile(file, history);
 
     }
 

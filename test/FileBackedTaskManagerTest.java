@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTaskManagerTest {
 
-    final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     @Test
     public void shouldSaveTasksToFile() throws IOException {
@@ -121,7 +121,7 @@ class FileBackedTaskManagerTest {
 
         Task task = manager2.findTaskById(1);
         String expected = "01.03.24 19:00";
-        String actual = task.getStartTime().format(DATE_TIME_FORMATTER);
+        String actual = task.getStartTime().format(dateTimeFormatter);
 
         tasks.delete();
         history.delete();

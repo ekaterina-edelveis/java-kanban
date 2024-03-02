@@ -150,7 +150,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTaskTime(Task task, String start, long duration) {
 
-        LocalDateTime tryStart = LocalDateTime.parse(start, task.DATE_TIME_FORMATTER);
+        LocalDateTime tryStart = LocalDateTime.parse(start, task.dateTimeFormatter);
         LocalDateTime tryEnd = tryStart.plusMinutes(duration);
 
         try {
@@ -174,7 +174,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtaskTime(Subtask subtask, String start, long duration) {
 
-        LocalDateTime tryStart = LocalDateTime.parse(start, subtask.DATE_TIME_FORMATTER);
+        LocalDateTime tryStart = LocalDateTime.parse(start, subtask.dateTimeFormatter);
         LocalDateTime tryEnd = tryStart.plusMinutes(duration);
 
         try {
@@ -207,7 +207,7 @@ public class InMemoryTaskManager implements TaskManager {
                 .min(LocalDateTime::compareTo);
 
         if (epicStart.isPresent()) {
-            String start = epicStart.get().format(epic.DATE_TIME_FORMATTER);
+            String start = epicStart.get().format(epic.dateTimeFormatter);
             epic.setStartTime(start);
         }
 

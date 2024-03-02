@@ -15,7 +15,7 @@ public class Task implements Comparable<Task> {
     protected Duration duration;
     protected LocalDateTime startTime;
 
-    final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     public Task(String name, String description) {
         this.name = name;
@@ -27,7 +27,7 @@ public class Task implements Comparable<Task> {
         this.name = name;
         this.description = description;
         this.status = Status.NEW;
-        this.startTime = LocalDateTime.parse(start, DATE_TIME_FORMATTER);
+        this.startTime = LocalDateTime.parse(start, dateTimeFormatter);
         this.duration = Duration.ofMinutes(minutes);
     }
 
@@ -89,7 +89,7 @@ public class Task implements Comparable<Task> {
     }
 
     public void setStartTime(String start) {
-        this.startTime = LocalDateTime.parse(start, DATE_TIME_FORMATTER);
+        this.startTime = LocalDateTime.parse(start, dateTimeFormatter);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class Task implements Comparable<Task> {
                     + "," + "0";
         }
         return id + "," + type + "," + name + "," + status + "," + description + ","
-                + startTime.format(DATE_TIME_FORMATTER) + "," + duration.toMinutes();
+                + startTime.format(dateTimeFormatter) + "," + duration.toMinutes();
     }
 
 

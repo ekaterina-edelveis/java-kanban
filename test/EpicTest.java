@@ -10,7 +10,7 @@ class EpicTest {
 
     private TaskManager manager;
 
-    final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     @BeforeEach
     public void beforeEach() {
@@ -105,7 +105,7 @@ class EpicTest {
         manager.createSubtask(sub3);
 
         String expected = "29.02.24 19:00";
-        String actual = epic.getStartTime().format(DATE_TIME_FORMATTER);
+        String actual = epic.getStartTime().format(dateTimeFormatter);
         assertEquals(expected, actual);
 
     }

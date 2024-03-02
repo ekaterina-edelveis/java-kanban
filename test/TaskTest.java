@@ -12,7 +12,7 @@ class TaskTest {
 
     private static TaskManager manager;
 
-    final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     @BeforeEach
     public void beforeEach() {
@@ -37,7 +37,7 @@ class TaskTest {
         manager.createTask(task);
 
         String expected = "04.03.24 21:00";
-        String actual = task.getEndTime().format(DATE_TIME_FORMATTER);
+        String actual = task.getEndTime().format(dateTimeFormatter);
 
         assertEquals(expected, actual);
     }

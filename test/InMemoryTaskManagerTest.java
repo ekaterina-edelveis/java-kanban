@@ -13,7 +13,7 @@ class InMemoryTaskManagerTest {
 
     private TaskManager manager;
 
-    final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     @BeforeEach
     public void beforeEach() {
@@ -206,7 +206,7 @@ class InMemoryTaskManagerTest {
         manager.updateTaskTime(t2, "01.03.24 18:00", 200);
 
         String expected = "01.03.24 10:00";
-        String actual = t2.getStartTime().format(DATE_TIME_FORMATTER);
+        String actual = t2.getStartTime().format(dateTimeFormatter);
 
         assertEquals(expected, actual);
 
@@ -224,7 +224,7 @@ class InMemoryTaskManagerTest {
         manager.updateTaskTime(t2, "02.03.24 18:00", 200);
 
         String expected = "02.03.24 18:00";
-        String actual = t2.getStartTime().format(DATE_TIME_FORMATTER);
+        String actual = t2.getStartTime().format(dateTimeFormatter);
 
         assertEquals(expected, actual);
 

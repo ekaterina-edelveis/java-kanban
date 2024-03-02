@@ -26,7 +26,7 @@ public class Subtask extends Task {
                     + "," + "0" + "," + epic.getId();
         }
         return id + "," + type + "," + name + "," + status + ","
-                + description + "," + startTime.format(DATE_TIME_FORMATTER)
+                + description + "," + startTime.format(dateTimeFormatter)
                 + "," + duration.toMinutes() + "," + epic.getId();
     }
 
