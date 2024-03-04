@@ -173,16 +173,21 @@ class InMemoryTaskManagerTest {
     public void shouldNotCreateTaskIfTimeOverlap() {
 
         Task t1 = new Task("cook dinner", "pasta with meatballs", "01.03.24 19:00", 45);
-        manager.createTask(t1);
 
         Task t2 = new Task("write an article", "risc-v java port", "01.03.24 10:00", 200);
-        manager.createTask(t2);
 
         Task t3 = new Task("watch a movie", "choose from the list", "29.02.24 20:00", 90);
-        manager.createTask(t3);
 
         Task t4 = new Task("chat with a friend", "call Alex", "01.03.24 19:30", 25);
-        manager.createTask(t4);
+
+        try {
+            manager.createTask(t1);
+            manager.createTask(t2);
+            manager.createTask(t3);
+            manager.createTask(t4);
+        } catch (ManagerSaveException ex) {
+
+        }
 
         List<Task> expected = new ArrayList<>();
         expected.add(t3);
@@ -203,7 +208,11 @@ class InMemoryTaskManagerTest {
         Task t2 = new Task("write an article", "risc-v java port", "01.03.24 10:00", 200);
         manager.createTask(t2);
 
-        manager.updateTaskTime(t2, "01.03.24 18:00", 200);
+        try {
+            manager.updateTaskTime(t2, "01.03.24 18:00", 200);
+        } catch (ManagerSaveException ex) {
+
+        }
 
         String expected = "01.03.24 10:00";
         String actual = t2.getStartTime().format(dateTimeFormatter);
