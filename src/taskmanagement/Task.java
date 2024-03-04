@@ -81,8 +81,9 @@ public class Task {
     }
 
     public LocalDateTime getEndTime() {
-        if(startTime != null){
-        return startTime.plusMinutes(duration.toMinutes());}
+        if (startTime != null) {
+            return startTime.plusMinutes(duration.toMinutes());
+        }
         return null;
     }
 
@@ -94,7 +95,7 @@ public class Task {
         this.startTime = LocalDateTime.parse(start, dateTimeFormatter);
     }
 
-    public void setStartTimeUnformatted(LocalDateTime time){
+    public void setStartTimeUnformatted(LocalDateTime time) {
         this.startTime = time;
     }
 
