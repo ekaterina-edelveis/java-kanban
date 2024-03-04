@@ -4,15 +4,11 @@ import taskmanagement.Managers;
 import taskmanagement.Task;
 import taskmanagement.TaskManager;
 
-import java.time.format.DateTimeFormatter;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class TaskTest {
 
     private static TaskManager manager;
-
-    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     @BeforeEach
     public void beforeEach() {
@@ -36,8 +32,8 @@ class TaskTest {
         Task task = new Task("Walk the dog", "The dog walks at 8 a.m.", "04.03.24 20:30", 30);
         manager.createTask(task);
 
-        String expected = "04.03.24 21:00";
-        String actual = task.getEndTime().format(dateTimeFormatter);
+        String expected = "2024-03-04T21:00";
+        String actual = task.getEndTime().toString();
 
         assertEquals(expected, actual);
     }

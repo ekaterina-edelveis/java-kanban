@@ -2,7 +2,6 @@ package taskmanagement;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
@@ -17,21 +16,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void createTask(Task task) {
+    public int createTask(Task task) {
         super.createTask(task);
         save();
+        return task.getId();
     }
 
     @Override
-    public void createEpic(Epic epic) {
+    public int createEpic(Epic epic) {
         super.createEpic(epic);
         save();
+        return epic.getId();
     }
 
     @Override
-    public void createSubtask(Subtask subtask) {
+    public int createSubtask(Subtask subtask) {
         super.createSubtask(subtask);
         save();
+        return subtask.getId();
     }
 
     @Override
@@ -51,12 +53,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
         super.updateSubtask(subtask);
         save();
-
-    }
-
-    @Override
-    protected void calculateEpicStatus(Epic epic) {
-        super.calculateEpicStatus(epic);
 
     }
 
@@ -132,16 +128,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    protected void calculateEpicStartTime(Epic epic) {
-        super.calculateEpicStartTime(epic);
-    }
-
-    @Override
-    protected void calculateEpicDuration(Epic epic) {
-        super.calculateEpicDuration(epic);
-    }
-
-    @Override
     public void updateTaskTime(Task task, String start, long duration) {
         super.updateTaskTime(task, start, duration);
     }
@@ -149,16 +135,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     @Override
     public void updateSubtaskTime(Subtask subtask, String start, long duration) {
         super.updateSubtaskTime(subtask, start, duration);
-    }
-
-    @Override
-    public boolean isOverlap(LocalDateTime newStart, LocalDateTime newEnd, Task existingTask) {
-        return super.isOverlap(newStart, newEnd, existingTask);
-    }
-
-    @Override
-    public boolean findSlots(LocalDateTime newStart, LocalDateTime newEnd) {
-        return super.findSlots(newStart, newEnd);
     }
 
     @Override
@@ -198,6 +174,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private void fromString(String value) {
+
         String[] taskData = value.split(",");
         int id = Integer.parseInt(taskData[0]);
         TaskType type = TaskType.valueOf(taskData[1]);
@@ -209,21 +186,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             String start = taskData[5];
             long duration = Long.parseLong(taskData[6]);
             Task task;
+
             if (start.equals("null")) {
                 task = new Task(name, description);
-                task.setId(id);
-                task.setType(type);
-                task.setStatus(status);
-                tasks.put(task.getId(), task);
+
             } else {
                 task = new Task(name, description, start, duration);
-                task.setId(id);
-                task.setType(type);
-                task.setStatus(status);
-
-                tasks.put(task.getId(), task);
                 prioritizedTasks.add(task);
             }
+
+            task.setId(id);
+            task.setType(type);
+            task.setStatus(status);
+            tasks.put(task.getId(), task);
 
         } else if (type == TaskType.EPIC) {
             Epic task = new Epic(name, description);
@@ -244,27 +219,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             Subtask task;
             if (start.equals("null")) {
                 task = new Subtask(name, description, epic);
-                task.setId(id);
-                task.setType(type);
-                task.setStatus(status);
 
-                subtasks.put(task.getId(), task);
             } else {
                 task = new Subtask(name, description, start, duration, epic);
-                task.setId(id);
-                task.setType(type);
-                task.setStatus(status);
-
-                subtasks.put(task.getId(), task);
                 prioritizedTasks.add(task);
             }
 
+            task.setId(id);
+            task.setType(type);
+            task.setStatus(status);
+            subtasks.put(task.getId(), task);
+
             epic.getSubtasks().add(task);
-
-            calculateEpicStatus(epic);
-            calculateEpicStartTime(epic);
-            calculateEpicDuration(epic);
-
+            super.calculateEpicState(epic);
         }
 
     }

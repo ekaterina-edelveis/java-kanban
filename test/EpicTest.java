@@ -2,15 +2,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import taskmanagement.*;
 
-import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
 
     private TaskManager manager;
-
-    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     @BeforeEach
     public void beforeEach() {
@@ -104,8 +101,8 @@ class EpicTest {
                 "create a new branch", "29.02.24 19:00", 10, epic);
         manager.createSubtask(sub3);
 
-        String expected = "29.02.24 19:00";
-        String actual = epic.getStartTime().format(dateTimeFormatter);
+        String expected = "2024-02-29T19:00";
+        String actual = epic.getStartTime().toString();
         assertEquals(expected, actual);
 
     }

@@ -11,101 +11,78 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
     protected final Map<Integer, Epic> epics = new HashMap<>();
 
-    protected final Set<Task> prioritizedTasks = new TreeSet<>();
+    protected final Set<Task> prioritizedTasks = new TreeSet<>(new TaskComparator());
 
     protected final HistoryManager historyManager = Managers.getDefaultHistory();
 
     protected int counter = 1;
 
-    public boolean isOverlap(LocalDateTime newStart, LocalDateTime newEnd, Task existingTask) {
+    protected boolean isOverlap(LocalDateTime newStart, LocalDateTime newEnd, Task existingTask) {
         return !(newEnd.isBefore(existingTask.getStartTime())
                 || newStart.isAfter(existingTask.getEndTime()));
     }
 
-    public boolean findSlots(LocalDateTime newStart, LocalDateTime newEnd) {
+    protected boolean checkSlots(LocalDateTime newStart, LocalDateTime newEnd) {
         return prioritizedTasks.stream().noneMatch(t -> isOverlap(newStart, newEnd, t));
     }
 
 
-    /*
-    Анна, привет! В методдах создания/обновления задач и подзадач
-    у меня дублируется много кода в if-else, так же быть не должно?
-    Просто я не понимаю, как можно сделать код более лаконичным,
-    не обложывщись подушками доп условий, спасающих от исключений
-     */
     @Override
-    public void createTask(Task task) {
-        try {
-            if (task.getStartTime() == null) {
-                task.setId(counter);
-                task.setType(TaskType.TASK);
-                tasks.put(task.getId(), task);
-                counter++;
-            } else if (prioritizedTasks.isEmpty()
-                    || findSlots(task.getStartTime(), task.getEndTime())) {
-                task.setId(counter);
-                task.setType(TaskType.TASK);
-                tasks.put(task.getId(), task);
-                prioritizedTasks.add(task);
-                counter++;
-            } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
-        } catch (ManagerSaveException ex) {
-            System.out.println(ex.getMessage());
-        }
+    public int createTask(Task task) {
+
+        task.setId(counter);
+        task.setType(TaskType.TASK);
+
+        if (task.getStartTime() == null) {
+            tasks.put(task.getId(), task);
+
+        } else if (prioritizedTasks.isEmpty()
+                || checkSlots(task.getStartTime(), task.getEndTime())) {
+
+            tasks.put(task.getId(), task);
+            prioritizedTasks.add(task);
+
+        } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
+
+        counter++;
+        return task.getId();
+
     }
 
     @Override
-    public void createEpic(Epic epic) {
+    public int createEpic(Epic epic) {
         epic.setId(counter);
         epic.setType(TaskType.EPIC);
         epics.put(epic.getId(), epic);
 
         counter++;
+
+        return epic.getId();
     }
 
     @Override
-    public void createSubtask(Subtask subtask) {
+    public int createSubtask(Subtask subtask) {
+        subtask.setId(counter);
+        subtask.setType(TaskType.SUBTASK);
+        Epic epicToBeUpdated = subtask.getEpic();
 
-        try {
-            if (subtask.getStartTime() == null) {
-                subtask.setId(counter);
-                subtask.setType(TaskType.SUBTASK);
-                counter++;
+        if (subtask.getStartTime() == null) {
 
-                Epic epicToBeUpdated = subtask.getEpic();
-                epicToBeUpdated.getSubtasks().add(subtask);
-
-                subtasks.put(subtask.getId(), subtask);
-
-                //вычисляем статус эпика
-                calculateEpicStatus(epicToBeUpdated);
-                calculateEpicStartTime(epicToBeUpdated);
-                calculateEpicDuration(epicToBeUpdated);
+            subtasks.put(subtask.getId(), subtask);
 
 
-            } else if (prioritizedTasks.isEmpty()
-                    || findSlots(subtask.getStartTime(), subtask.getEndTime())) {
+        } else if (prioritizedTasks.isEmpty()
+                || checkSlots(subtask.getStartTime(), subtask.getEndTime())) {
 
-                subtask.setId(counter);
-                subtask.setType(TaskType.SUBTASK);
-                counter++;
+            subtasks.put(subtask.getId(), subtask);
+            prioritizedTasks.add(subtask);
 
-                Epic epicToBeUpdated = subtask.getEpic();
-                epicToBeUpdated.getSubtasks().add(subtask);
+        } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
 
-                subtasks.put(subtask.getId(), subtask);
-                prioritizedTasks.add(subtask);
-
-                //вычисляем статус эпика
-                calculateEpicStatus(epicToBeUpdated);
-                calculateEpicStartTime(epicToBeUpdated);
-                calculateEpicDuration(epicToBeUpdated);
-
-
-            } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
-        } catch (ManagerSaveException ex) {
-            System.out.println(ex.getMessage());
-        }
+        epicToBeUpdated.getSubtasks().add(subtask);
+        calculateEpicState(epicToBeUpdated);
+        counter++;
+        return subtask.getId();
     }
 
     @Override
@@ -123,9 +100,7 @@ public class InMemoryTaskManager implements TaskManager {
         epicToBeUpdated.setName(newName);
         epicToBeUpdated.setDescription(newDescription);
 
-        calculateEpicStatus(epicToBeUpdated);
-        calculateEpicStartTime(epicToBeUpdated);
-        calculateEpicDuration(epicToBeUpdated);
+        calculateEpicState(epicToBeUpdated);
 
     }
 
@@ -141,9 +116,7 @@ public class InMemoryTaskManager implements TaskManager {
         epicToBeUpdated.getSubtasks().add(subtask);
 
         //проверяем статусы подзадач и меняем статус-старт-продолжительность эпика
-        calculateEpicStatus(epicToBeUpdated);
-        calculateEpicStartTime(epicToBeUpdated);
-        calculateEpicDuration(epicToBeUpdated);
+        calculateEpicState(epicToBeUpdated);
 
     }
 
@@ -153,22 +126,13 @@ public class InMemoryTaskManager implements TaskManager {
         LocalDateTime tryStart = LocalDateTime.parse(start, task.dateTimeFormatter);
         LocalDateTime tryEnd = tryStart.plusMinutes(duration);
 
-        try {
-            if (prioritizedTasks.isEmpty()) {
-                task.setStartTime(start);
-                task.setDuration(duration);
-                updateTask(task);
-                prioritizedTasks.add(task);
-            } else if (findSlots(tryStart, tryEnd)) {
-                prioritizedTasks.remove(task);
-                task.setStartTime(start);
-                task.setDuration(duration);
-                updateTask(task);
-                prioritizedTasks.add(task);
-            } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
-        } catch (ManagerSaveException ex) {
-            System.out.println(ex.getMessage());
-        }
+        if (checkSlots(tryStart, tryEnd)) {
+            prioritizedTasks.remove(task);
+            task.setStartTime(start);
+            task.setDuration(duration);
+            updateTask(task);
+            prioritizedTasks.add(task);
+        } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
     }
 
     @Override
@@ -177,26 +141,20 @@ public class InMemoryTaskManager implements TaskManager {
         LocalDateTime tryStart = LocalDateTime.parse(start, subtask.dateTimeFormatter);
         LocalDateTime tryEnd = tryStart.plusMinutes(duration);
 
-        try {
-            if (prioritizedTasks.isEmpty()) {
-                subtask.setStartTime(start);
-                subtask.setDuration(duration);
-                updateSubtask(subtask);
-                prioritizedTasks.add(subtask);
+        if (checkSlots(tryStart, tryEnd)) {
+            prioritizedTasks.remove(subtask);
+            subtask.setStartTime(start);
+            subtask.setDuration(duration);
+            updateSubtask(subtask);
+            prioritizedTasks.add(subtask);
 
-            } else if (findSlots(tryStart, tryEnd)) {
+        } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
+    }
 
-                prioritizedTasks.remove(subtask);
-                subtask.setStartTime(start);
-                subtask.setDuration(duration);
-                updateSubtask(subtask);
-                prioritizedTasks.add(subtask);
-
-            } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
-        } catch (ManagerSaveException ex) {
-            System.out.println(ex.getMessage());
-        }
-
+    protected void calculateEpicState(Epic epic) {
+        calculateEpicStartTime(epic);
+        calculateEpicDuration(epic);
+        calculateEpicStatus(epic);
     }
 
     protected void calculateEpicStartTime(Epic epic) {
@@ -207,24 +165,22 @@ public class InMemoryTaskManager implements TaskManager {
                 .min(LocalDateTime::compareTo);
 
         if (epicStart.isPresent()) {
-            String start = epicStart.get().format(epic.dateTimeFormatter);
-            epic.setStartTime(start);
+            LocalDateTime start = epicStart.get();
+            epic.setStartTimeUnformatted(start);
         }
 
     }
 
     protected void calculateEpicDuration(Epic epic) {
-        List<Duration> subsDuration = epic.getSubtasks().stream()
+
+        long minutes = epic.getSubtasks().stream()
                 .map(Task::getDuration)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        long minutesTotal = 0;
-        if (!subsDuration.isEmpty()) {
-            for (Duration duration : subsDuration) {
-                minutesTotal += duration.toMinutes();
-            }
-            epic.setDuration(minutesTotal);
-        }
+                .map(Duration::toMinutes)
+                .reduce(0L, Long::sum);
+
+        epic.setDuration(minutes);
+
     }
 
     protected void calculateEpicStatus(Epic epic) {
@@ -371,10 +327,7 @@ public class InMemoryTaskManager implements TaskManager {
         prioritizedTasks.remove(subtask);
 
         //проверяем статус эпика
-        calculateEpicStatus(epicToBeUpdated);
-        calculateEpicStartTime(epicToBeUpdated);
-        calculateEpicDuration(epicToBeUpdated);
-
+        calculateEpicState(epicToBeUpdated);
 
     }
 
@@ -383,7 +336,7 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    public TreeMap<Integer, Task> sort() {
+    protected TreeMap<Integer, Task> sort() {
         TreeMap<Integer, Task> sortedTasks = new TreeMap<>();
         sortedTasks.putAll(tasks);
         sortedTasks.putAll(epics);

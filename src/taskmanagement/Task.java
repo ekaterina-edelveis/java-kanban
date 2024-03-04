@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-public class Task implements Comparable<Task> {
+public class Task {
 
     protected String name;
     protected String description;
@@ -81,7 +81,9 @@ public class Task implements Comparable<Task> {
     }
 
     public LocalDateTime getEndTime() {
-        return startTime.plusMinutes(duration.toMinutes());
+        if(startTime != null){
+        return startTime.plusMinutes(duration.toMinutes());}
+        return null;
     }
 
     public void setDuration(long minutes) {
@@ -90,6 +92,10 @@ public class Task implements Comparable<Task> {
 
     public void setStartTime(String start) {
         this.startTime = LocalDateTime.parse(start, dateTimeFormatter);
+    }
+
+    public void setStartTimeUnformatted(LocalDateTime time){
+        this.startTime = time;
     }
 
     @Override
@@ -127,12 +133,6 @@ public class Task implements Comparable<Task> {
         }
         return id + "," + type + "," + name + "," + status + "," + description + ","
                 + startTime.format(dateTimeFormatter) + "," + duration.toMinutes();
-    }
-
-
-    @Override
-    public int compareTo(Task task) {
-        return this.getStartTime().compareTo(task.getStartTime());
     }
 
 }
