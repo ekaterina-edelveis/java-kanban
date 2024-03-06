@@ -2,6 +2,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import taskmanagement.*;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class InMemoryTaskManagerTest {
 
     private TaskManager manager;
-
-    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     @BeforeEach
     public void beforeEach() {
@@ -214,8 +214,9 @@ class InMemoryTaskManagerTest {
 
         }
 
-        String expected = "01.03.24 10:00";
-        String actual = t2.getStartTime().format(dateTimeFormatter);
+        LocalDateTime expected = LocalDateTime.of(2024,
+                Month.MARCH, 1, 10, 0);
+        LocalDateTime actual = t2.getStartTime();
 
         assertEquals(expected, actual);
 
@@ -232,8 +233,10 @@ class InMemoryTaskManagerTest {
 
         manager.updateTaskTime(t2, "02.03.24 18:00", 200);
 
-        String expected = "02.03.24 18:00";
-        String actual = t2.getStartTime().format(dateTimeFormatter);
+
+        LocalDateTime expected = LocalDateTime.of(2024,
+                Month.MARCH, 2, 18, 0);
+        LocalDateTime actual = t2.getStartTime();
 
         assertEquals(expected, actual);
 

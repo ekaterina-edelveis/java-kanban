@@ -95,7 +95,7 @@ public class Task {
         this.startTime = LocalDateTime.parse(start, dateTimeFormatter);
     }
 
-    public void setStartTimeUnformatted(LocalDateTime time) {
+    public void setStartTime(LocalDateTime time) {
         this.startTime = time;
     }
 

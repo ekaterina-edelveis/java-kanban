@@ -3,6 +3,9 @@ import org.junit.jupiter.api.Test;
 import taskmanagement.*;
 
 
+import java.time.LocalDateTime;
+import java.time.Month;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
@@ -101,9 +104,10 @@ class EpicTest {
                 "create a new branch", "29.02.24 19:00", 10, epic);
         manager.createSubtask(sub3);
 
-        String expected = "2024-02-29T19:00";
-        String actual = epic.getStartTime().toString();
-        assertEquals(expected, actual);
+        LocalDateTime expectedDate = LocalDateTime.of(2024,
+                Month.FEBRUARY, 29, 19, 0);
+        LocalDateTime actualDate = epic.getStartTime();
+        assertEquals(expectedDate, actualDate);
 
     }
 

@@ -11,7 +11,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
     protected final Map<Integer, Epic> epics = new HashMap<>();
 
-    protected final Set<Task> prioritizedTasks = new TreeSet<>(new TaskComparator());
+    protected final Set<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
     protected final HistoryManager historyManager = Managers.getDefaultHistory();
 
@@ -24,6 +24,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected boolean checkSlots(LocalDateTime newStart, LocalDateTime newEnd) {
         return prioritizedTasks.stream().noneMatch(t -> isOverlap(newStart, newEnd, t));
+    }
+
+    protected boolean checkTaskCanBeSaved(Task task){
+        
+
+        return false;
     }
 
 
@@ -85,11 +91,39 @@ public class InMemoryTaskManager implements TaskManager {
         return subtask.getId();
     }
 
+
+
     @Override
     public void updateTask(Task task) {
-        tasks.put(task.getId(), task);
+
+       /*
+       Анна, привет! В общем, почему-то TreeSet не видит эту задачу.
+       Если вызвать тут же в методе .contains() перед .remove(), выдает false
+       Поэтому он ее не удаляет и поэтому ее невозможно обновить
+       Но это происходит, только если новое время старта меньше времени старта любой
+       из имеющихся задач
+       Сюдя по тому, что я поняла из дебаггера, задача не меняется, как объект
+       Айдишник тот же, хеш-код тот же...
+       Особенности TreeSet? Какой-то хитрый баг? Как это отлаживать?
+       Или все-таки в таком случае доп метод UpdateTaskTime() - валидное решение?
+
+        */
+
+        prioritizedTasks.remove(task);
+
+        if (task.getStartTime() == null) {
+            tasks.put(task.getId(), task);
+
+        } else if (checkSlots(task.getStartTime(), task.getEndTime())) {
+
+            tasks.put(task.getId(), task);
+            prioritizedTasks.add(task);
+
+        } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
 
     }
+
+
 
     @Override
     public void updateEpic(Epic epic) {
@@ -120,6 +154,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     }
 
+
     @Override
     public void updateTaskTime(Task task, String start, long duration) {
 
@@ -134,6 +169,8 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.add(task);
         } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
     }
+
+
 
     @Override
     public void updateSubtaskTime(Subtask subtask, String start, long duration) {
@@ -166,7 +203,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         if (epicStart.isPresent()) {
             LocalDateTime start = epicStart.get();
-            epic.setStartTimeUnformatted(start);
+            epic.setStartTime(start);
         }
 
     }

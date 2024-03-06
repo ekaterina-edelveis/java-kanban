@@ -4,7 +4,8 @@ import taskmanagement.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTaskManagerTest {
 
-    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     @Test
     public void shouldSaveTasksToFile() throws IOException {
@@ -121,8 +121,9 @@ class FileBackedTaskManagerTest {
         TaskManager manager2 = Managers.getFileBacked(tasks, history);
 
         Task task = manager2.findTaskById(1);
-        String expected = "01.03.24 19:00";
-        String actual = task.getStartTime().format(dateTimeFormatter);
+
+        LocalDateTime expected = LocalDateTime.of(2024, Month.MARCH, 1, 19, 0);
+        LocalDateTime actual = task.getStartTime();
 
         tasks.deleteOnExit();
         history.deleteOnExit();
