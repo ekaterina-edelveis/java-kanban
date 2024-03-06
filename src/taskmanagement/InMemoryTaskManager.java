@@ -26,12 +26,6 @@ public class InMemoryTaskManager implements TaskManager {
         return prioritizedTasks.stream().noneMatch(t -> isOverlap(newStart, newEnd, t));
     }
 
-    protected boolean checkTaskCanBeSaved(Task task){
-        
-
-        return false;
-    }
-
 
     @Override
     public int createTask(Task task) {
@@ -92,7 +86,6 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
 
-
     @Override
     public void updateTask(Task task) {
 
@@ -122,7 +115,6 @@ public class InMemoryTaskManager implements TaskManager {
         } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
 
     }
-
 
 
     @Override
@@ -169,7 +161,6 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.add(task);
         } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
     }
-
 
 
     @Override
