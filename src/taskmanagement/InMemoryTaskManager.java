@@ -89,20 +89,23 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
 
-       /*
-       Анна, привет! В общем, почему-то TreeSet не видит эту задачу.
-       Если вызвать тут же в методе .contains() перед .remove(), выдает false
-       Поэтому он ее не удаляет и поэтому ее невозможно обновить
-       Но это происходит, только если новое время старта меньше времени старта любой
-       из имеющихся задач
-       Сюдя по тому, что я поняла из дебаггера, задача не меняется, как объект
-       Айдишник тот же, хеш-код тот же...
-       Особенности TreeSet? Какой-то хитрый баг? Как это отлаживать?
-       Или все-таки в таком случае доп метод UpdateTaskTime() - валидное решение?
+        /*
+        Анна, привет! Действительно, removeIf работает, спамибо!
+        Но возникла другая проблема, из-за которой я все-таки склоняюсь к тому, чтобы
+        оставить отдельные методы по обновлению старта.
+        Пользователь через main использует сеттер для обновления старта,
+        и программа на это не ругается. То есть несмотря на наши условия здесь,
+        задача уже сохраняется в мапе с новым временем! Поскольку ссылка на один и тот же объект, я так понимаю
 
-        */
+        (заново таски в priorities пока не добавляются, но это можно через try-catch сделать,
+        это сейчас меньшая из болей)
 
-        prioritizedTasks.remove(task);
+        Как вариант - делать клон объекта и его передавать в метод?
+        Но я все-таки за отдельный метод, как у меня было :)
+
+         */
+
+        prioritizedTasks.removeIf(t -> t.id == task.getId());
 
         if (task.getStartTime() == null) {
             tasks.put(task.getId(), task);
@@ -113,6 +116,7 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.add(task);
 
         } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
+
 
     }
 
@@ -133,18 +137,33 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
 
-        //сначала обновляем задачу в hashmap
-        subtasks.put(subtask.getId(), subtask);
+        prioritizedTasks.removeIf(s -> s.id == subtask.getId());
 
-        //теперь нам нужно обновить задачу в arraylist соответствующего эпика
+        if (subtask.getStartTime() == null) {
+            subtasks.put(subtask.getId(), subtask);
+            updateEpicUponSubtaskUpdate(subtask);
+
+        } else if (checkSlots(subtask.getStartTime(), subtask.getEndTime())) {
+
+            subtasks.put(subtask.getId(), subtask);
+            updateEpicUponSubtaskUpdate(subtask);
+            prioritizedTasks.add(subtask);
+
+        } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
+
+
+    }
+
+    protected void updateEpicUponSubtaskUpdate(Subtask subtask) {
+
         Epic epicToBeUpdated = subtask.getEpic();
         epicToBeUpdated.getSubtasks().remove(subtask);
         epicToBeUpdated.getSubtasks().add(subtask);
 
-        //проверяем статусы подзадач и меняем статус-старт-продолжительность эпика
         calculateEpicState(epicToBeUpdated);
-
     }
+
+            /*
 
 
     @Override
@@ -178,6 +197,9 @@ public class InMemoryTaskManager implements TaskManager {
 
         } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
     }
+
+         */
+
 
     protected void calculateEpicState(Epic epic) {
         calculateEpicStartTime(epic);

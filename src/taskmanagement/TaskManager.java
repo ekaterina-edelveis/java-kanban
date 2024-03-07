@@ -16,10 +16,6 @@ public interface TaskManager {
 
     void updateSubtask(Subtask subtask);
 
-    void updateTaskTime(Task task, String start, long duration);
-
-    void updateSubtaskTime(Subtask subtask, String start, long duration);
-
     List<Task> getAllTasks();
 
     List<Epic> getAllEpics();
