@@ -18,7 +18,5 @@ public class Epic extends Task {
     public String toCvs() {
         return id + "," + type + "," + name + "," + status + "," + description;
     }
-
-
 }
 

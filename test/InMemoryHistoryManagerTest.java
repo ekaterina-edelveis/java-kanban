@@ -21,8 +21,9 @@ public class InMemoryHistoryManagerTest {
     @Test
     public void shouldAddTasksToHistory() {
         Task task = new Task("Walk the dog", "The dog walks at 8 a.m.");
+        int t1Id = taskManager.createTask(task);
 
-        historyManager.add(task);
+        historyManager.add(taskManager.findTaskById(t1Id));
         final List<Task> history = historyManager.getHistory();
 
         assertNotEquals(0, history.size(), "История пустая.");
@@ -34,17 +35,17 @@ public class InMemoryHistoryManagerTest {
         Task task1 = new Task("Walk the dog", "The dog walks at 8 a.m.");
         Task task2 = new Task("Go shopping", "Buy milk, bread, meat, veggies");
 
-        taskManager.createTask(task1);
-        taskManager.createTask(task2);
+        int t1Id = taskManager.createTask(task1);
+        int t2Id = taskManager.createTask(task2);
 
-        historyManager.add(task1);
-        historyManager.add(task2);
-        historyManager.add(task1);
+        historyManager.add(taskManager.findTaskById(t1Id));
+        historyManager.add(taskManager.findTaskById(t2Id));
+        historyManager.add(taskManager.findTaskById(t1Id));
 
         final List<Task> history = historyManager.getHistory();
         List<Task> expected = new ArrayList<>();
-        expected.add(task2);
-        expected.add(task1);
+        expected.add(taskManager.findTaskById(t2Id));
+        expected.add(taskManager.findTaskById(t1Id));
 
         assertEquals(expected, history, "Списки не равны");
     }
@@ -52,9 +53,10 @@ public class InMemoryHistoryManagerTest {
     @Test
     public void shouldDeleteTaskFromHistory() {
         Task task1 = new Task("Walk the dog", "The dog walks at 8 a.m.");
+        int t1Id = taskManager.createTask(task1);
 
-        historyManager.add(task1);
-        historyManager.remove(task1.getId());
+        historyManager.add(taskManager.findTaskById(t1Id));
+        historyManager.remove(t1Id);
 
         final List<Task> history = historyManager.getHistory();
         assertEquals(0, history.size(), "История пустая.");

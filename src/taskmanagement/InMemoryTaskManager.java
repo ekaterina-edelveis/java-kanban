@@ -27,8 +27,31 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
 
+    /*
+    Анна, привет! А как насчет такого варианта?
+    Мы оставляем сеттеры в задачах, но при этом пользователь может работать только с клонами объектов.
+    Т.е. мы сохраняем в мапе клон переданного объекта, только нормальный, с аданным ID, типом. статусом и пр.
+    Пользователь получает по методу find только клоны, и обновляет их, а менеджер, получая клон,
+    уже проверяет, можно ли обновить задачу. Даже если пользователь попытается передать какой-то левый инпут,
+    менеджер проверит, существует ли вообще такая задача.
+    Таким образом мы:
+    1. Сохраняем привычный интерфейс с сеттерами
+    2. Не позволяем пользователю взаимодействовать напрямую с объектами в мапах
+    3. Не сильно загружаем пламять. Клоны мы нигде не храним, они нужны нам в моменте, соотв.,
+    сборщик мусора их приберет
+    3. Не создаем доп неудобств:
+    хотя мы учти возможность передачи таска без айдишника,
+    такого произойти, по идее, не должно. Пользователь не будет работать с программой
+    через Main: будет либо фронт, либо консолька. Соотв., не будет возможности продолжать работу с ранее созданными клонами.
+
+    В иммутабельности в данной ситуации я виду след проблему:
+    Нам вместо сеттеров придется вводить какие-то другие методы, потому что в конструкторе
+    не все можно передать: айдишник, например, или статус NEW у новой задачи, или статус эпика
+     */
+
     @Override
-    public int createTask(Task task) {
+    public int createTask(Task newTask) {
+        Task task = newTask.clone();
 
         task.setId(counter);
         task.setType(TaskType.TASK);
@@ -50,7 +73,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int createEpic(Epic epic) {
+    public int createEpic(Epic newEpic) {
+        Epic epic = (Epic) newEpic.clone();
+
         epic.setId(counter);
         epic.setType(TaskType.EPIC);
         epics.put(epic.getId(), epic);
@@ -61,7 +86,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int createSubtask(Subtask subtask) {
+    public int createSubtask(Subtask newSubtask) {
+        Subtask subtask = (Subtask) newSubtask.clone();
+
         subtask.setId(counter);
         subtask.setType(TaskType.SUBTASK);
         Epic epicToBeUpdated = subtask.getEpic();
@@ -81,6 +108,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         epicToBeUpdated.getSubtasks().add(subtask);
         calculateEpicState(epicToBeUpdated);
+        epics.put(epicToBeUpdated.getId(), epicToBeUpdated);
         counter++;
         return subtask.getId();
     }
@@ -89,40 +117,33 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
 
-        /*
-        Анна, привет! Действительно, removeIf работает, спамибо!
-        Но возникла другая проблема, из-за которой я все-таки склоняюсь к тому, чтобы
-        оставить отдельные методы по обновлению старта.
-        Пользователь через main использует сеттер для обновления старта,
-        и программа на это не ругается. То есть несмотря на наши условия здесь,
-        задача уже сохраняется в мапе с новым временем! Поскольку ссылка на один и тот же объект, я так понимаю
+        if (task.getId() == 0) {
+            throw new ManagerSaveException("Передана задача с нулевым ID");
+        }
 
-        (заново таски в priorities пока не добавляются, но это можно через try-catch сделать,
-        это сейчас меньшая из болей)
 
-        Как вариант - делать клон объекта и его передавать в метод?
-        Но я все-таки за отдельный метод, как у меня было :)
-
-         */
-
-        prioritizedTasks.removeIf(t -> t.id == task.getId());
+        Task taskToUpdate = tasks.get(task.getId());
 
         if (task.getStartTime() == null) {
             tasks.put(task.getId(), task);
-
-        } else if (checkSlots(task.getStartTime(), task.getEndTime())) {
-
+        } else if ((taskToUpdate.getStartTime() == task.getStartTime()
+                && taskToUpdate.getDuration() == task.getDuration())
+                || checkSlots(task.getStartTime(), task.getEndTime())) {
+            prioritizedTasks.removeIf(t -> t.id == task.getId());
             tasks.put(task.getId(), task);
             prioritizedTasks.add(task);
 
         } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
-
 
     }
 
 
     @Override
     public void updateEpic(Epic epic) {
+
+        if (epic.getId() == 0) {
+            throw new ManagerSaveException("Передана задача с нулевым ID");
+        }
 
         String newName = epic.getName();
         String newDescription = epic.getDescription();
@@ -137,14 +158,21 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
 
-        prioritizedTasks.removeIf(s -> s.id == subtask.getId());
+        if (subtask.getId() == 0) {
+            throw new ManagerSaveException("Передана задача с нулевым ID");
+        }
+
+        Subtask subToUpdate = subtasks.get(subtask.getId());
 
         if (subtask.getStartTime() == null) {
             subtasks.put(subtask.getId(), subtask);
             updateEpicUponSubtaskUpdate(subtask);
 
-        } else if (checkSlots(subtask.getStartTime(), subtask.getEndTime())) {
+        } else if ((subToUpdate.getStartTime() == subtask.getStartTime()
+                && subToUpdate.getDuration() == subtask.getDuration())
+                || checkSlots(subtask.getStartTime(), subtask.getEndTime())) {
 
+            prioritizedTasks.removeIf(s -> s.id == subtask.getId());
             subtasks.put(subtask.getId(), subtask);
             updateEpicUponSubtaskUpdate(subtask);
             prioritizedTasks.add(subtask);
@@ -161,45 +189,8 @@ public class InMemoryTaskManager implements TaskManager {
         epicToBeUpdated.getSubtasks().add(subtask);
 
         calculateEpicState(epicToBeUpdated);
+        epics.put(epicToBeUpdated.getId(), epicToBeUpdated);
     }
-
-            /*
-
-
-    @Override
-    public void updateTaskTime(Task task, String start, long duration) {
-
-        LocalDateTime tryStart = LocalDateTime.parse(start, task.dateTimeFormatter);
-        LocalDateTime tryEnd = tryStart.plusMinutes(duration);
-
-        if (checkSlots(tryStart, tryEnd)) {
-            prioritizedTasks.remove(task);
-            task.setStartTime(start);
-            task.setDuration(duration);
-            updateTask(task);
-            prioritizedTasks.add(task);
-        } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
-    }
-
-
-    @Override
-    public void updateSubtaskTime(Subtask subtask, String start, long duration) {
-
-        LocalDateTime tryStart = LocalDateTime.parse(start, subtask.dateTimeFormatter);
-        LocalDateTime tryEnd = tryStart.plusMinutes(duration);
-
-        if (checkSlots(tryStart, tryEnd)) {
-            prioritizedTasks.remove(subtask);
-            subtask.setStartTime(start);
-            subtask.setDuration(duration);
-            updateSubtask(subtask);
-            prioritizedTasks.add(subtask);
-
-        } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
-    }
-
-         */
-
 
     protected void calculateEpicState(Epic epic) {
         calculateEpicStartTime(epic);
@@ -223,6 +214,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected void calculateEpicDuration(Epic epic) {
 
+
         long minutes = epic.getSubtasks().stream()
                 .map(Task::getDuration)
                 .filter(Objects::nonNull)
@@ -236,7 +228,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected void calculateEpicStatus(Epic epic) {
 
         List<Status> subtasksStatuses = epic.getSubtasks().stream()
-                .map(subtask -> subtask.getStatus())
+                .map(Task::getStatus)
                 .collect(Collectors.toList());
 
 
@@ -286,7 +278,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             Task foundTask = tasks.get(id);
             historyManager.add(foundTask);
-            return foundTask;
+            return foundTask.clone();
         }
     }
 
@@ -298,7 +290,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             Epic foundEpic = epics.get(id);
             historyManager.add(foundEpic);
-            return foundEpic;
+            return (Epic) foundEpic.clone();
         }
     }
 
@@ -310,7 +302,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             Subtask foundSubtask = subtasks.get(id);
             historyManager.add(foundSubtask);
-            return foundSubtask;
+            return (Subtask) foundSubtask.clone();
         }
     }
 

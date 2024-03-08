@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Cloneable {
 
     protected String name;
     protected String description;
@@ -136,4 +136,13 @@ public class Task {
                 + startTime.format(dateTimeFormatter) + "," + duration.toMinutes();
     }
 
+    @Override
+    public Task clone() {
+        try {
+            Task clone = (Task) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }

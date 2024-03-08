@@ -4,6 +4,9 @@ import taskmanagement.Managers;
 import taskmanagement.Task;
 import taskmanagement.TaskManager;
 
+import java.time.LocalDateTime;
+import java.time.Month;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TaskTest {
@@ -18,22 +21,23 @@ class TaskTest {
     @Test
     public void treatsTasksWithSameIdAsEqual() {
         Task task = new Task("Walk the dog", "The dog walks at 8 a.m.");
-        manager.createTask(task);
-        Task savedTask = manager.findTaskById(task.getId());
+        int id = manager.createTask(task);
+        Task savedTask = manager.findTaskById(id);
 
-        task.setDescription("The dog walks at 8 a.m.");
-        manager.updateTask(task);
-        assertEquals(savedTask, manager.findTaskById(task.getId()));
+        savedTask.setDescription("The dog walks at 8 a.m.");
+        manager.updateTask(savedTask);
+        assertEquals(savedTask, manager.findTaskById(id));
     }
 
 
     @Test
     public void shouldCalculateEndTime() {
         Task task = new Task("Walk the dog", "The dog walks at 8 a.m.", "04.03.24 20:30", 30);
-        manager.createTask(task);
+        int id = manager.createTask(task);
 
-        String expected = "2024-03-04T21:00";
-        String actual = task.getEndTime().toString();
+        //"2024-03-04T21:00"
+        LocalDateTime expected = LocalDateTime.of(2024, Month.MARCH, 4, 21, 0);
+        LocalDateTime actual = manager.findTaskById(id).getEndTime();
 
         assertEquals(expected, actual);
     }
