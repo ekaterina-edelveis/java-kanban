@@ -30,4 +30,9 @@ public class Subtask extends Task {
                 + "," + duration.toMinutes() + "," + epic.getId();
     }
 
+    @Override
+    public Subtask clone() {
+        return (Subtask) super.clone();
+    }
+
 }

@@ -26,29 +26,6 @@ public class InMemoryTaskManager implements TaskManager {
         return prioritizedTasks.stream().noneMatch(t -> isOverlap(newStart, newEnd, t));
     }
 
-
-    /*
-    Анна, привет! А как насчет такого варианта?
-    Мы оставляем сеттеры в задачах, но при этом пользователь может работать только с клонами объектов.
-    Т.е. мы сохраняем в мапе клон переданного объекта, только нормальный, с аданным ID, типом. статусом и пр.
-    Пользователь получает по методу find только клоны, и обновляет их, а менеджер, получая клон,
-    уже проверяет, можно ли обновить задачу. Даже если пользователь попытается передать какой-то левый инпут,
-    менеджер проверит, существует ли вообще такая задача.
-    Таким образом мы:
-    1. Сохраняем привычный интерфейс с сеттерами
-    2. Не позволяем пользователю взаимодействовать напрямую с объектами в мапах
-    3. Не сильно загружаем пламять. Клоны мы нигде не храним, они нужны нам в моменте, соотв.,
-    сборщик мусора их приберет
-    3. Не создаем доп неудобств:
-    хотя мы учти возможность передачи таска без айдишника,
-    такого произойти, по идее, не должно. Пользователь не будет работать с программой
-    через Main: будет либо фронт, либо консолька. Соотв., не будет возможности продолжать работу с ранее созданными клонами.
-
-    В иммутабельности в данной ситуации я виду след проблему:
-    Нам вместо сеттеров придется вводить какие-то другие методы, потому что в конструкторе
-    не все можно передать: айдишник, например, или статус NEW у новой задачи, или статус эпика
-     */
-
     @Override
     public int createTask(Task newTask) {
         Task task = newTask.clone();
@@ -74,7 +51,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createEpic(Epic newEpic) {
-        Epic epic = (Epic) newEpic.clone();
+        Epic epic = newEpic.clone();
 
         epic.setId(counter);
         epic.setType(TaskType.EPIC);
@@ -87,7 +64,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createSubtask(Subtask newSubtask) {
-        Subtask subtask = (Subtask) newSubtask.clone();
+        Subtask subtask = newSubtask.clone();
 
         subtask.setId(counter);
         subtask.setType(TaskType.SUBTASK);
@@ -290,7 +267,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             Epic foundEpic = epics.get(id);
             historyManager.add(foundEpic);
-            return (Epic) foundEpic.clone();
+            return foundEpic.clone();
         }
     }
 
@@ -302,7 +279,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             Subtask foundSubtask = subtasks.get(id);
             historyManager.add(foundSubtask);
-            return (Subtask) foundSubtask.clone();
+            return foundSubtask.clone();
         }
     }
 
