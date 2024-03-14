@@ -1,6 +1,5 @@
 package taskmanagement;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
@@ -17,13 +16,13 @@ public interface TaskManager {
 
     void updateSubtask(Subtask subtask);
 
-    ArrayList<Task> getAllTasks();
+    List<Task> getAllTasks();
 
-    ArrayList<Epic> getAllEpics();
+    List<Epic> getAllEpics();
 
-    ArrayList<Subtask> getAllSubtasksForEpic(int epicId);
+    List<Subtask> getAllSubtasksForEpic(int epicId);
 
-    ArrayList<Subtask> getAllSubtasks();
+    List<Subtask> getAllSubtasks();
 
     Task findTaskById(int id);
 
@@ -43,4 +42,5 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
+    List<Task> getPrioritizedTasks();
 }

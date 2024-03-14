@@ -1,21 +1,24 @@
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import taskmanagement.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTaskManagerTest {
 
+
     @Test
     public void shouldSaveTasksToFile() throws IOException {
-        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
-        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+
+        File tasks = File.createTempFile("backup-copy", ".csv");
+        File history = File.createTempFile("backup-copy", ".csv");
 
         TaskManager manager = Managers.getFileBacked(tasks, history);
 
@@ -35,10 +38,10 @@ class FileBackedTaskManagerTest {
             throw new RuntimeException(e);
         }
 
-        String expected = "1,TASK,Walk the dog,NEW,The dog walks at 8";
+        String expected = "1,TASK,Walk the dog,NEW,The dog walks at 8,null,0";
 
-        tasks.delete();
-        history.delete();
+        tasks.deleteOnExit();
+        history.deleteOnExit();
 
         assertEquals(3, counter);
         assertEquals(expected, task1);
@@ -49,8 +52,8 @@ class FileBackedTaskManagerTest {
     @Test
     public void shouldSaveHistoryToFile() throws IOException {
 
-        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
-        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+        File tasks = File.createTempFile("backup-copy", ".csv");
+        File history = File.createTempFile("backup-copy", ".csv");
 
         TaskManager manager = Managers.getFileBacked(tasks, history);
 
@@ -68,8 +71,8 @@ class FileBackedTaskManagerTest {
             throw new RuntimeException(e);
         }
 
-        tasks.delete();
-        history.delete();
+        tasks.deleteOnExit();
+        history.deleteOnExit();
 
         assertEquals(2, counter);
 
@@ -78,8 +81,9 @@ class FileBackedTaskManagerTest {
 
     @Test
     public void shouldRestoreTasksFromFile() throws IOException {
-        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
-        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+
+        File tasks = File.createTempFile("backup-copy", ".csv");
+        File history = File.createTempFile("backup-copy", ".csv");
 
         TaskManager manager = Managers.getFileBacked(tasks, history);
 
@@ -94,18 +98,46 @@ class FileBackedTaskManagerTest {
         String name = task.getName();
         String expected = "Walk the dog";
 
-
-        tasks.delete();
-        history.delete();
+        tasks.deleteOnExit();
+        history.deleteOnExit();
 
         assertEquals(expected, name);
     }
 
     @Test
+    public void shouldRestoreTasksWithTimeFromFile() throws IOException {
+
+        File tasks = File.createTempFile("backup-copy", ".csv");
+        File history = File.createTempFile("backup-copy", ".csv");
+
+        TaskManager manager = Managers.getFileBacked(tasks, history);
+
+        Task t1 = new Task("cook dinner", "pasta with meatballs", "01.03.24 19:00", 45);
+        manager.createTask(t1);
+
+        Task t2 = new Task("write an article", "risc-v java port", "01.03.24 10:00", 200);
+        manager.createTask(t2);
+
+        TaskManager manager2 = Managers.getFileBacked(tasks, history);
+
+        Task task = manager2.findTaskById(1);
+
+        LocalDateTime expected = LocalDateTime.of(2024, Month.MARCH, 1, 19, 0);
+        LocalDateTime actual = task.getStartTime();
+
+        tasks.deleteOnExit();
+        history.deleteOnExit();
+
+        assertEquals(expected, actual);
+
+
+    }
+
+    @Test
     public void shouldRestoreHistoryFromFile() throws IOException {
 
-        File tasks = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
-        File history = Files.createTempFile(Paths.get("temp"), "backup-copy", ".csv").toFile();
+        File tasks = File.createTempFile("backup-copy", ".csv");
+        File history = File.createTempFile("backup-copy", ".csv");
 
         TaskManager manager = Managers.getFileBacked(tasks, history);
 
@@ -118,17 +150,16 @@ class FileBackedTaskManagerTest {
 
         List<Task> recoveredHistory = manager2.getHistory();
         String name = "";
-        for(Task task : recoveredHistory){
-           name = task.getName();
+        for (Task task : recoveredHistory) {
+            name = task.getName();
         }
         String expected = "Walk the dog";
 
-        tasks.delete();
-        history.delete();
+        tasks.deleteOnExit();
+        history.deleteOnExit();
 
         assertEquals(expected, name);
     }
-
 
 
 }

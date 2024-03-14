@@ -30,8 +30,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         tail = newNode;
         if (oldTail == null) {
             head = newNode;
-        }
-        else {
+        } else {
             oldTail.next = newNode;
         }
 
@@ -39,17 +38,15 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     }
 
-
     public void removeNode(Node node) {
 
         //удаляем ноду и перенастраиваем ссылки
 
         Node next = node.next;
         Node prev = node.prev;
-        if(prev == null){
+        if (prev == null) {
             head = next;
-        }
-        else {
+        } else {
             prev.next = next;
         }
         if (next == null) {
@@ -78,7 +75,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
         List<Task> taskHistory = new ArrayList<>();
         Node temp = head;
-        for(int i = 0; i < linkedTaskHistory.size(); i++){
+        for (int i = 0; i < linkedTaskHistory.size(); i++) {
             taskHistory.add(temp.data);
             temp = temp.next;
         }
@@ -87,7 +84,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        if(linkedTaskHistory.containsKey(id)){
+        if (linkedTaskHistory.containsKey(id)) {
             Node node = linkedTaskHistory.get(id);
             removeNode(node);
             linkedTaskHistory.remove(id);
@@ -95,8 +92,8 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void removeAll(Collection<Task> tasks){
-        for(Task task : tasks){
+    public void removeAll(Collection<Task> tasks) {
+        for (Task task : tasks) {
             remove(task.getId());
         }
 

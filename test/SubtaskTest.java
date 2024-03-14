@@ -16,17 +16,17 @@ class SubtaskTest {
     @Test
     public void treatsSubtasksWithSameIdAsEqual() {
         Epic epic = new Epic("Do the project", "Create a kanban for Yandex Practicum");
-        manager.createEpic(epic);
+        int epicId = manager.createEpic(epic);
 
         Subtask subtask = new Subtask("Add new functionality",
-                "Create interfaces", epic);
-        int subtaskId = manager.createSubtask(subtask);
+                "Create interfaces", "27.02.24 19:30", 90, manager.findEpicById(epicId));
+        int subId = manager.createSubtask(subtask);
 
-        Subtask savedSubtask = manager.findSubtaskById(subtaskId);
-        subtask.setDescription("Create interfaces and split classes");
-        manager.updateSubtask(subtask);
+        Subtask savedSubtask = manager.findSubtaskById(subId);
+        savedSubtask.setDescription("Create interfaces and split classes");
+        manager.updateSubtask(savedSubtask);
 
-        assertEquals(savedSubtask, manager.findSubtaskById(subtaskId));
+        assertEquals(savedSubtask, manager.findSubtaskById(subId));
 
     }
 }
