@@ -1,9 +1,8 @@
 id,type,name,status,description,start,duration,epic
-1,TASK,cook dinner,NEW,pasta with meatballs,01.03.24 19:00,45
-2,TASK,write an article,NEW,risc-v java port,01.03.24 10:00,100
+2,TASK,write an article,DONE,risc-v java port,01.03.24 10:00,100
 3,TASK,watch a movie,NEW,choose from the list,03.03.24 20:00,90
-4,TASK,chat with a friend,NEW,call Kate,null,0
 5,EPIC,Do the project,IN_PROGRESS,Java kanban for Yandex Practicum
-6,SUBTASK,Add new feature,DONE,write classes,04.03.24 19:30,120,5
-7,SUBTASK,Test new feature,NEW,write tests,05.03.24 20:00,90,5
-8,SUBTASK,Commit new changes,NEW,notify reviewer,null,0,5
+7,SUBTASK,Test new feature,DONE,write tests,05.03.24 20:00,90,5
+9,TASK,make dessert,NEW,cook a cherry pie,15.03.24 10:00,60
+11,TASK,Make a video,IN_PROGRESS,Java 22 features,17.03.24 10:00,60
+12,SUBTASK,Fix bugs,NEW,updating and creating tasks,17.03.24 14:00,30,5

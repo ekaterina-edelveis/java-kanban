@@ -68,7 +68,8 @@ public class InMemoryTaskManager implements TaskManager {
 
         subtask.setId(counter);
         subtask.setType(TaskType.SUBTASK);
-        Epic epicToBeUpdated = subtask.getEpic();
+
+        Epic epic = epics.get(subtask.getEpic().getId());
 
         if (subtask.getStartTime() == null) {
 
@@ -83,9 +84,10 @@ public class InMemoryTaskManager implements TaskManager {
 
         } else throw new ManagerSaveException("Время выполнения задачи пересекается с другими задачами");
 
-        epicToBeUpdated.getSubtasks().add(subtask);
-        calculateEpicState(epicToBeUpdated);
-        epics.put(epicToBeUpdated.getId(), epicToBeUpdated);
+
+        epic.getSubtasks().add(subtask);
+        calculateEpicState(epic);
+        epics.put(epic.getId(), epic);
         counter++;
         return subtask.getId();
     }
@@ -98,13 +100,13 @@ public class InMemoryTaskManager implements TaskManager {
             throw new ManagerSaveException("Передана задача с нулевым ID");
         }
 
-
         Task taskToUpdate = tasks.get(task.getId());
 
         if (task.getStartTime() == null) {
             tasks.put(task.getId(), task);
-        } else if ((taskToUpdate.getStartTime() == task.getStartTime()
-                && taskToUpdate.getDuration() == task.getDuration())
+
+        } else if ((taskToUpdate.getStartTime().equals(task.getStartTime())
+                && taskToUpdate.getDuration().equals(task.getDuration()))
                 || checkSlots(task.getStartTime(), task.getEndTime())) {
             prioritizedTasks.removeIf(t -> t.id == task.getId());
             tasks.put(task.getId(), task);
@@ -145,8 +147,8 @@ public class InMemoryTaskManager implements TaskManager {
             subtasks.put(subtask.getId(), subtask);
             updateEpicUponSubtaskUpdate(subtask);
 
-        } else if ((subToUpdate.getStartTime() == subtask.getStartTime()
-                && subToUpdate.getDuration() == subtask.getDuration())
+        } else if ((subToUpdate.getStartTime().equals(subtask.getStartTime())
+                && subToUpdate.getDuration().equals(subtask.getDuration()))
                 || checkSlots(subtask.getStartTime(), subtask.getEndTime())) {
 
             prioritizedTasks.removeIf(s -> s.id == subtask.getId());
@@ -161,7 +163,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected void updateEpicUponSubtaskUpdate(Subtask subtask) {
 
-        Epic epicToBeUpdated = subtask.getEpic();
+        Epic epicToBeUpdated = epics.get(subtask.getEpic().getId());
         epicToBeUpdated.getSubtasks().remove(subtask);
         epicToBeUpdated.getSubtasks().add(subtask);
 
@@ -288,7 +290,9 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.removeAll(tasks.values());
 
         for (Task task : tasks.values()) {
-            prioritizedTasks.remove(task);
+            if (task.getStartTime() != null) {
+                prioritizedTasks.remove(task);
+            }
         }
 
         tasks.clear();
@@ -304,7 +308,9 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.removeAll(epicsAndSubtasks);
 
         for (Subtask subtask : subtasks.values()) {
-            prioritizedTasks.remove(subtask);
+            if (subtask.getStartTime() != null) {
+                prioritizedTasks.remove(subtask);
+            }
         }
 
         epics.clear();
@@ -313,7 +319,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTaskById(int id) {
-        prioritizedTasks.remove(tasks.get(id));
+
+        if (tasks.get(id).getStartTime() != null) {
+            prioritizedTasks.remove(tasks.get(id));
+        }
         tasks.remove(id);
         historyManager.remove(id);
 
@@ -337,13 +346,14 @@ public class InMemoryTaskManager implements TaskManager {
         Subtask subtask = subtasks.get(id);
 
         //нужно удалить задачу из arraylist эпика
-        Epic epicToBeUpdated = subtask.getEpic();
+        Epic epicToBeUpdated = epics.get(subtask.getEpic().getId());
         epicToBeUpdated.getSubtasks().remove(subtask);
 
-        //удаляем подзадачу из hashmap
+        if (subtasks.get(id).getStartTime() != null) {
+            prioritizedTasks.remove(subtask);
+        }
         subtasks.remove(id);
         historyManager.remove(id);
-        prioritizedTasks.remove(subtask);
 
         //проверяем статус эпика
         calculateEpicState(epicToBeUpdated);

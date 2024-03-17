@@ -1,5 +1,6 @@
 package taskmanagement;
 
+
 public class Subtask extends Task {
 
     protected Epic epic;
@@ -26,8 +27,22 @@ public class Subtask extends Task {
                     + "," + "0" + "," + epic.getId();
         }
         return id + "," + type + "," + name + "," + status + ","
-                + description + "," + startTime.format(dateTimeFormatter)
+                + description + "," + LocalDateTimeParser.localDateTimeToString(startTime)
                 + "," + duration.toMinutes() + "," + epic.getId();
+    }
+
+    @Override
+    public String toString() {
+        return "Subtask{" +
+                "epicId=" + epic.getId() +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", id=" + id +
+                ", status=" + status +
+                ", type=" + type +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                '}';
     }
 
     @Override
