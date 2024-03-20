@@ -27,14 +27,5 @@
     </orderEntry>
     <orderEntry type="library" name="apiguardian-api-1.0.0-javadoc" level="project" />
     <orderEntry type="library" name="gson-2.10.1" level="project" />
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/gson-2.10.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
   </component>
 </module>
