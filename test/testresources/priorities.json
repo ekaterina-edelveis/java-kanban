@@ -1,0 +1,20 @@
+[
+  {
+    "name": "cook dinner",
+    "description": "pasta with meatballs",
+    "id": 1,
+    "status": "NEW",
+    "type": "TASK",
+    "duration": 45,
+    "startTime": "01.03.24 19:00"
+  },
+  {
+    "name": "write an article",
+    "description": "risc-v java port",
+    "id": 2,
+    "status": "NEW",
+    "type": "TASK",
+    "duration": 200,
+    "startTime": "02.03.24 10:00"
+  }
+]

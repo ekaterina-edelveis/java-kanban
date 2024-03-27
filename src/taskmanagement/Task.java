@@ -2,7 +2,6 @@ package taskmanagement;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task implements Cloneable {
@@ -15,8 +14,6 @@ public class Task implements Cloneable {
     protected Duration duration;
     protected LocalDateTime startTime;
 
-    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
-
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
@@ -27,7 +24,7 @@ public class Task implements Cloneable {
         this.name = name;
         this.description = description;
         this.status = Status.NEW;
-        this.startTime = LocalDateTime.parse(start, dateTimeFormatter);
+        this.startTime = LocalDateTimeParser.parseToLocalDateTime(start);
         this.duration = Duration.ofMinutes(minutes);
     }
 
@@ -48,7 +45,7 @@ public class Task implements Cloneable {
         return status;
     }
 
-    protected void setId(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -64,11 +61,11 @@ public class Task implements Cloneable {
         this.description = description;
     }
 
-    protected void setType(TaskType type) {
+    public void setType(TaskType type) {
         this.type = type;
     }
 
-    protected TaskType getType() {
+    public TaskType getType() {
         return type;
     }
 
@@ -92,7 +89,7 @@ public class Task implements Cloneable {
     }
 
     public void setStartTime(String start) {
-        this.startTime = LocalDateTime.parse(start, dateTimeFormatter);
+        this.startTime = LocalDateTimeParser.parseToLocalDateTime(start);
     }
 
     public void setStartTime(LocalDateTime time) {
@@ -133,7 +130,7 @@ public class Task implements Cloneable {
                     + "," + "0";
         }
         return id + "," + type + "," + name + "," + status + "," + description + ","
-                + startTime.format(dateTimeFormatter) + "," + duration.toMinutes();
+                + LocalDateTimeParser.localDateTimeToString(startTime) + "," + duration.toMinutes();
     }
 
     @Override

@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,7 +61,7 @@ class FileBackedTaskManagerTest {
         manager.createTask(t1);
         manager.findTaskById(1);
 
-        int counter = 0;
+        int counter;
 
         try {
             final List<String> lines = Files.readAllLines(history.toPath(), StandardCharsets.UTF_8);
