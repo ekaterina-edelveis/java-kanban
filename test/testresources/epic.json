@@ -1,0 +1,18 @@
+[
+  {
+    "epic": {
+      "name": "Sunday quehaceros",
+      "description": "casual stuff",
+      "id": 1,
+      "status": "NEW",
+      "type": "EPIC"
+    },
+    "name": "cook dinner",
+    "description": "pasta with meatballs",
+    "id": 2,
+    "status": "NEW",
+    "type": "SUBTASK",
+    "duration": 45,
+    "startTime": "01.03.24 19:00"
+  }
+]

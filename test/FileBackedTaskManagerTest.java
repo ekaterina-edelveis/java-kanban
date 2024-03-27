@@ -61,7 +61,7 @@ class FileBackedTaskManagerTest {
         manager.createTask(t1);
         manager.findTaskById(1);
 
-        int counter = 0;
+        int counter;
 
         try {
             final List<String> lines = Files.readAllLines(history.toPath(), StandardCharsets.UTF_8);

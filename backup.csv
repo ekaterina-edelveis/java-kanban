@@ -6,3 +6,5 @@ id,type,name,status,description,start,duration,epic
 9,TASK,make dessert,NEW,cook a cherry pie,15.03.24 10:00,60
 11,TASK,Make a video,IN_PROGRESS,Java 22 features,17.03.24 10:00,60
 12,SUBTASK,Fix bugs,NEW,updating and creating tasks,17.03.24 14:00,30,5
+13,TASK,Janes birthday,NEW,buy a present,null,0
+14,SUBTASK,Update classes,NEW,clean the code,null,0,5

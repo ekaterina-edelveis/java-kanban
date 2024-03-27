@@ -9,12 +9,17 @@ import taskmanagement.Managers;
 import taskmanagement.Subtask;
 import taskmanagement.TaskManager;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,7 +53,7 @@ class EpicHandlerTest {
         int epicId = manager.createEpic(epic);
 
         Subtask sub = new Subtask("cook dinner", "pasta with meatballs", "01.03.24 19:00", 45, manager.findEpicById(epicId));
-        int subId = manager.createSubtask(sub);
+        manager.createSubtask(sub);
 
 
         String url = "http://localhost:8080/epics/" + epicId + "/subtasks";
@@ -66,30 +71,33 @@ class EpicHandlerTest {
         try {
             HttpResponse<String> response = client.send(request, handler);
             int expectedCode = 200;
-            String expectedBody = "{\n" +
-                    "  \"epic\": {\n" +
-                    "    \"name\": \"Sunday quehaceros\",\n" +
-                    "    \"description\": \"casual stuff\",\n" +
-                    "    \"id\": 1,\n" +
-                    "    \"status\": \"NEW\",\n" +
-                    "    \"type\": \"EPIC\"\n" +
-                    "  },\n" +
-                    "  \"name\": \"cook dinner\",\n" +
-                    "  \"description\": \"pasta with meatballs\",\n" +
-                    "  \"id\": 2,\n" +
-                    "  \"status\": \"NEW\",\n" +
-                    "  \"type\": \"SUBTASK\",\n" +
-                    "  \"duration\": 45,\n" +
-                    "  \"startTime\": \"01.03.24 19:00\"\n" +
-                    "}";
+            String expectedBody = getReferenceDataFromFile("test/testresources/epic.json");
 
             assertNotNull(response.body());
             assertEquals(expectedBody, response.body());
             assertEquals(expectedCode, response.statusCode());
 
         } catch (IOException | InterruptedException e) {
+            fail("Exception was thrown:" + e.getMessage());
+        }
+    }
+
+    public String getReferenceDataFromFile(String filepath) {
+
+        Path path = Paths.get(filepath);
+
+        StringBuilder builder = new StringBuilder();
+        try (BufferedReader rdr =
+                     new BufferedReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
+            while (rdr.ready()) {
+                builder.append(rdr.readLine()).append("\n");
+            }
+            builder.deleteCharAt(builder.length() - 1);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
+        return builder.toString();
     }
 
 }

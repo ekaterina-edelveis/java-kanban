@@ -7,25 +7,13 @@ import taskmanagement.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class SubtaskHandler implements HttpHandler {
-    private final TaskManager manager;
-    private final Gson gsonForDateTime;
-    private final Gson basicGson;
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+public class SubtaskHandler extends TaskHandler implements HttpHandler {
 
     public SubtaskHandler(TaskManager manager) {
-        this.manager = manager;
-        gsonForDateTime = createGson();
-        basicGson = createSimpleGson();
+        super(manager);
     }
 
     @Override
@@ -51,18 +39,21 @@ public class SubtaskHandler implements HttpHandler {
                 break;
             }
             default:
-                writeResponse(exchange, "Такой страницы не существует", 404);
+                apiMessage.setMessage("Такой страницы не существует");
+                String response = gson.toJson(apiMessage);
+                writeResponse(exchange, response, 404);
         }
-
 
     }
 
 
-    private void handleDeleteTask(HttpExchange exchange) throws IOException {
+    protected void handleDeleteTask(HttpExchange exchange) throws IOException {
         Optional<Integer> taskIdOptional = getTaskId(exchange);
 
         if (taskIdOptional.isEmpty()) {
-            writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+            apiMessage.setMessage("Некорректный идентификатор задачи");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 400);
             return;
         }
         int taskId = taskIdOptional.get();
@@ -70,17 +61,24 @@ public class SubtaskHandler implements HttpHandler {
         Subtask subtask = manager.findSubtaskById(taskId);
         if (subtask != null) {
             manager.deleteSubtaskById(taskId);
-            writeResponse(exchange, "Задача удалена", 200);
+
+            apiMessage.setMessage("Задача удалена");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 200);
         } else {
-            writeResponse(exchange, "Задача с таким ID не обнаружена", 404);
+            apiMessage.setMessage("Задача с таким ID не обнаружена");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 404);
         }
     }
 
-    private void handlePostTask(HttpExchange exchange) throws IOException {
+    protected void handlePostTask(HttpExchange exchange) throws IOException {
 
         Optional<Subtask> optional = parseTask(exchange.getRequestBody());
         if (optional.isEmpty()) {
-            writeResponse(exchange, "Поля задачи не могут быть пустыми", 400);
+            apiMessage.setMessage("Невозможно создать задачу: все или некоторые поля запроса были пустыми");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 400);
             return;
         }
 
@@ -89,26 +87,38 @@ public class SubtaskHandler implements HttpHandler {
         if (subtask.getId() == 0) {
             try {
                 manager.createSubtask(subtask);
-                writeResponse(exchange, "Задача успешно создана", 201);
+
+                apiMessage.setMessage("Задача успешно создана");
+                String response = gson.toJson(apiMessage);
+                writeResponse(exchange, response, 201);
             } catch (ManagerSaveException ex) {
-                writeResponse(exchange, "Задача пересекается с существующими", 406);
+                apiMessage.setMessage("Задача пересекается с существующими");
+                String response = gson.toJson(apiMessage);
+                writeResponse(exchange, response, 406);
             }
         } else {
             try {
                 manager.updateSubtask(subtask);
-                writeResponse(exchange, "Задача успешно обновлена", 201);
+
+                apiMessage.setMessage("Задача успешно обновлена");
+                String response = gson.toJson(apiMessage);
+                writeResponse(exchange, response, 201);
             } catch (ManagerSaveException ex) {
-                writeResponse(exchange, "Задача пересекается с существующими", 406);
+                apiMessage.setMessage("Задача пересекается с существующими");
+                String response = gson.toJson(apiMessage);
+                writeResponse(exchange, response, 406);
             }
         }
     }
 
-    private void handleGetTask(HttpExchange exchange) throws IOException {
+    protected void handleGetTask(HttpExchange exchange) throws IOException {
 
         Optional<Integer> taskIdOptional = getTaskId(exchange);
 
         if (taskIdOptional.isEmpty()) {
-            writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+            apiMessage.setMessage("Некорректный идентификатор задачи");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 400);
             return;
         }
         int taskId = taskIdOptional.get();
@@ -116,53 +126,26 @@ public class SubtaskHandler implements HttpHandler {
         Subtask subtask = manager.findSubtaskById(taskId);
         String taskResponse;
         if (subtask != null) {
-            if (subtask.getStartTime() != null) {
-                taskResponse = gsonForDateTime.toJson(subtask);
-            } else {
-                taskResponse = basicGson.toJson(subtask);
-            }
+            taskResponse = gson.toJson(subtask);
             writeResponse(exchange, taskResponse, 200);
         } else {
-            writeResponse(exchange, "Задача с таким ID не обнаружена", 404);
+            apiMessage.setMessage("Задача с таким ID не обнаружена");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 404);
         }
 
     }
 
-    private void handleGetTasks(HttpExchange exchange) throws IOException {
+    protected void handleGetTasks(HttpExchange exchange) throws IOException {
 
         List<Subtask> subtasks = manager.getAllSubtasks();
-
-        String response = subtasks.stream()
-                .map(subtask -> {
-                    if (subtask.getStartTime() != null) {
-                        return gsonForDateTime.toJson(subtask);
-                    } else {
-                        return basicGson.toJson(subtask);
-                    }
-                })
-                .collect(Collectors.joining("\n"));
-
+        String response = gson.toJson(subtasks);
         writeResponse(exchange, response, 200);
 
     }
 
-    private Gson createGson() {
 
-        return new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter().nullSafe())
-                .registerTypeAdapter(Duration.class, new DurationTypeAdapter().nullSafe())
-                .create();
-    }
-
-    private Gson createSimpleGson() {
-        return new GsonBuilder()
-                .setPrettyPrinting()
-                .create();
-    }
-
-
-    private Endpoint getEndpoint(String requestPath, String requestMethod) {
+    protected Endpoint getEndpoint(String requestPath, String requestMethod) {
 
         String[] pathParts = requestPath.split("/");
 
@@ -186,17 +169,6 @@ public class SubtaskHandler implements HttpHandler {
 
     }
 
-    private Optional<Integer> getTaskId(HttpExchange exchange) {
-        String[] path = exchange.getRequestURI().getPath().split("/");
-        try {
-            int id = Integer.parseInt(path[2]);
-            return Optional.of(id);
-        } catch (NumberFormatException ex) {
-            return Optional.empty();
-        }
-
-    }
-
     private Optional<Subtask> parseTask(InputStream inputStream) throws IOException {
 
         String requestBody = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
@@ -210,12 +182,7 @@ public class SubtaskHandler implements HttpHandler {
             Status status = Status.valueOf(object.get("status").getAsString());
 
             JsonObject epicObject = object.get("epic").getAsJsonObject();
-            Epic epic;
-            if (!epicObject.has("startTime")) {
-                epic = basicGson.fromJson(epicObject.toString(), Epic.class);
-            } else {
-                epic = gsonForDateTime.fromJson(epicObject.toString(), Epic.class);
-            }
+            Epic epic = gson.fromJson(epicObject.toString(), Epic.class);
 
             Subtask subtask = new Subtask(name, description, epic);
 
@@ -244,17 +211,4 @@ public class SubtaskHandler implements HttpHandler {
 
     }
 
-
-    private void writeResponse(HttpExchange exchange,
-                               String responseString,
-                               int responseCode) throws IOException {
-
-        exchange.sendResponseHeaders(responseCode, 0);
-
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(responseString.getBytes(DEFAULT_CHARSET));
-        }
-
-        exchange.close();
-    }
 }

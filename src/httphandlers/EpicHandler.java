@@ -7,26 +7,13 @@ import taskmanagement.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class EpicHandler implements HttpHandler {
-
-    private final TaskManager manager;
-    private final Gson gsonForDateTime;
-    private final Gson basicGson;
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+public class EpicHandler extends TaskHandler implements HttpHandler {
 
     public EpicHandler(TaskManager manager) {
-        this.manager = manager;
-        gsonForDateTime = createGson();
-        basicGson = createSimpleGson();
+        super(manager);
     }
 
     @Override
@@ -60,21 +47,28 @@ public class EpicHandler implements HttpHandler {
                 break;
             }
             default:
-                writeResponse(exchange, "Такой страницы не существует", 404);
+                apiMessage.setMessage("Такой страницы не существует");
+                String response = gson.toJson(apiMessage);
+                writeResponse(exchange, response, 404);
         }
     }
 
 
-    private void handleDeleteTasks(HttpExchange exchange) throws IOException {
+    protected void handleDeleteTasks(HttpExchange exchange) throws IOException {
         manager.deleteAllEpics();
-        writeResponse(exchange, "Все задачи удалены", 200);
+
+        apiMessage.setMessage("Все задачи удалены");
+        String response = gson.toJson(apiMessage);
+        writeResponse(exchange, response, 200);
     }
 
-    private void handleDeleteTask(HttpExchange exchange) throws IOException {
+    protected void handleDeleteTask(HttpExchange exchange) throws IOException {
         Optional<Integer> epicIdOptional = getTaskId(exchange);
 
         if (epicIdOptional.isEmpty()) {
-            writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+            apiMessage.setMessage("Некорректный идентификатор задачи");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 400);
             return;
         }
         int epicId = epicIdOptional.get();
@@ -82,37 +76,61 @@ public class EpicHandler implements HttpHandler {
         Epic epic = manager.findEpicById(epicId);
         if (epic != null) {
             manager.deleteEpicById(epicId);
-            writeResponse(exchange, "Задача удалена", 200);
+
+            apiMessage.setMessage("Задача удалена");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 200);
         } else {
-            writeResponse(exchange, "Задача с таким ID не обнаружена", 404);
+
+            apiMessage.setMessage("Задача с таким ID не обнаружена");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 404);
         }
     }
 
-    private void handlePostTask(HttpExchange exchange) throws IOException {
+    protected void handlePostTask(HttpExchange exchange) throws IOException {
 
         Optional<Epic> optional = parseTask(exchange.getRequestBody());
         if (optional.isEmpty()) {
-            writeResponse(exchange, "Поля задачи не могут быть пустыми", 400);
+
+            apiMessage.setMessage("Невозможно создать задачу: все или некоторые поля запроса были пустыми");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 400);
             return;
         }
 
         Epic epic = optional.get();
 
         if (epic.getId() == 0) {
-            manager.createEpic(epic);
-            writeResponse(exchange, "Задача успешно создана", 201);
+            try {
+                manager.createEpic(epic);
+
+                apiMessage.setMessage("Задача успешно создана");
+                String response = gson.toJson(apiMessage);
+                writeResponse(exchange, response, 201);
+            } catch (Exception ex) {
+                String error = ex.getMessage();
+                apiMessage.setMessage(error);
+                String response = gson.toJson(apiMessage);
+                writeResponse(exchange, response, 500);
+            }
         } else {
             manager.updateEpic(epic);
-            writeResponse(exchange, "Задача успешно обновлена", 201);
+
+            apiMessage.setMessage("Задача успешно обновлена");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 201);
         }
     }
 
-    private void handleGetTask(HttpExchange exchange) throws IOException {
+    protected void handleGetTask(HttpExchange exchange) throws IOException {
 
         Optional<Integer> taskIdOptional = getTaskId(exchange);
 
         if (taskIdOptional.isEmpty()) {
-            writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+            apiMessage.setMessage("Некорректный идентификатор задачи");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 400);
             return;
         }
         int taskId = taskIdOptional.get();
@@ -120,31 +138,20 @@ public class EpicHandler implements HttpHandler {
         Epic epic = manager.findEpicById(taskId);
         String taskResponse;
         if (epic != null) {
-            if (epic.getStartTime() != null) {
-                taskResponse = gsonForDateTime.toJson(epic);
-            } else {
-                taskResponse = basicGson.toJson(epic);
-            }
+            taskResponse = gson.toJson(epic);
             writeResponse(exchange, taskResponse, 200);
         } else {
-            writeResponse(exchange, "Задача с таким ID не обнаружена", 404);
+            apiMessage.setMessage("Задача с таким ID не обнаружена");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 404);
         }
 
     }
 
-    private void handleGetTasks(HttpExchange exchange) throws IOException {
+    protected void handleGetTasks(HttpExchange exchange) throws IOException {
 
         List<Epic> epics = manager.getAllEpics();
-
-        String response = epics.stream()
-                .map(epic -> {
-                    if (epic.getStartTime() != null) {
-                        return gsonForDateTime.toJson(epic);
-                    } else {
-                        return basicGson.toJson(epic);
-                    }
-                })
-                .collect(Collectors.joining("\n"));
+        String response = gson.toJson(epics);
 
         writeResponse(exchange, response, 200);
 
@@ -155,7 +162,9 @@ public class EpicHandler implements HttpHandler {
         Optional<Integer> taskIdOptional = getTaskId(exchange);
 
         if (taskIdOptional.isEmpty()) {
-            writeResponse(exchange, "Некорректный идентификатор задачи", 400);
+            apiMessage.setMessage("Некорректный идентификатор задачи");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 400);
             return;
         }
         int taskId = taskIdOptional.get();
@@ -166,44 +175,20 @@ public class EpicHandler implements HttpHandler {
         if (epic != null) {
 
             List<Subtask> subs = manager.getAllSubtasksForEpic(taskId);
-            for (Subtask sub : subs) {
-                System.out.println(sub.getStartTime() + " " + sub.getDuration());
-            }
 
-            taskResponse = subs.stream()
-                    .map(subtask -> {
-                        if (subtask.getStartTime() != null) {
-                            return gsonForDateTime.toJson(subtask);
-                        } else {
-                            return basicGson.toJson(subtask);
-                        }
-                    })
-                    .collect(Collectors.joining("\n"));
+            taskResponse = gson.toJson(subs);
 
             writeResponse(exchange, taskResponse, 200);
         } else {
-            writeResponse(exchange, "Задача с таким ID не обнаружена", 404);
+            apiMessage.setMessage("Задача с таким ID не обнаружена");
+            String response = gson.toJson(apiMessage);
+            writeResponse(exchange, response, 404);
         }
 
     }
 
-    private Gson createGson() {
 
-        return new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter().nullSafe())
-                .registerTypeAdapter(Duration.class, new DurationTypeAdapter().nullSafe())
-                .create();
-    }
-
-    private Gson createSimpleGson() {
-        return new GsonBuilder()
-                .setPrettyPrinting()
-                .create();
-    }
-
-
-    private Endpoint getEndpoint(String requestPath, String requestMethod) {
+    protected Endpoint getEndpoint(String requestPath, String requestMethod) {
 
         String[] pathParts = requestPath.split("/");
 
@@ -231,17 +216,6 @@ public class EpicHandler implements HttpHandler {
             return Endpoint.GET_SUBTASKS_FOR_EPIC;
         }
         return Endpoint.UNKNOWN;
-
-    }
-
-    private Optional<Integer> getTaskId(HttpExchange exchange) {
-        String[] path = exchange.getRequestURI().getPath().split("/");
-        try {
-            int id = Integer.parseInt(path[2]);
-            return Optional.of(id);
-        } catch (NumberFormatException ex) {
-            return Optional.empty();
-        }
 
     }
 
@@ -281,19 +255,6 @@ public class EpicHandler implements HttpHandler {
         }
         return Optional.empty();
 
-    }
-
-    private void writeResponse(HttpExchange exchange,
-                               String responseString,
-                               int responseCode) throws IOException {
-
-        exchange.sendResponseHeaders(responseCode, 0);
-
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(responseString.getBytes(DEFAULT_CHARSET));
-        }
-
-        exchange.close();
     }
 
 

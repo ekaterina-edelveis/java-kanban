@@ -1,0 +1,11 @@
+[
+  {
+    "name": "cook dinner",
+    "description": "pasta with meatballs",
+    "id": 1,
+    "status": "NEW",
+    "type": "TASK",
+    "duration": 45,
+    "startTime": "01.03.24 19:00"
+  }
+]

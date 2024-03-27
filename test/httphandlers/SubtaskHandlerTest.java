@@ -6,12 +6,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import taskmanagement.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,22 +47,9 @@ class SubtaskHandlerTest {
     @Test
     public void shouldCreateSubtask() {
         Epic epic = new Epic("Sunday quehaceros", "casual stuff");
-        int epicId = manager.createEpic(epic);
+        manager.createEpic(epic);
 
-        String newSubtask = "{\n" +
-                "  \"epic\": {\n" +
-                "    \"name\": \"Sunday quehaceros\",\n" +
-                "    \"description\": \"casual stuff\",\n" +
-                "    \"id\": 1,\n" +
-                "    \"status\": \"NEW\",\n" +
-                "    \"type\": \"EPIC\"\n" +
-                "  },\n" +
-                "  \"name\": \"cook dinner\",\n" +
-                "  \"description\": \"pasta with meatballs\",\n" +
-                "  \"status\": \"NEW\",\n" +
-                "  \"duration\": 45,\n" +
-                "  \"startTime\": \"01.03.24 19:00\"\n" +
-                "}";
+        String newSubtask = getReferenceDataFromFile("test/testresources/subtask.json");
 
         String url = "http://localhost:8080/subtasks";
         URI uri = URI.create(url);
@@ -82,10 +74,27 @@ class SubtaskHandlerTest {
             assertEquals(expectedCode, response.statusCode());
             assertEquals(expectedSize, tasks.size());
 
-
         } catch (IOException | InterruptedException e) {
+            fail("Exception was thrown:" + e.getMessage());
+        }
+    }
+
+    public String getReferenceDataFromFile(String filepath) {
+
+        Path path = Paths.get(filepath);
+
+        StringBuilder builder = new StringBuilder();
+        try (BufferedReader rdr =
+                     new BufferedReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
+            while (rdr.ready()) {
+                builder.append(rdr.readLine()).append("\n");
+            }
+            builder.deleteCharAt(builder.length() - 1);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-
+        return builder.toString();
     }
+
 }
